@@ -1,0 +1,80 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-3">
+<div class="container-fluid">
+  <div class="text-end">
+	<span class="btn btn-link text-dark" data-mdb-ripple-color="dark"><i class="fas fa-user-circle me-2"></i>{{ link_authorization }}</span>
+	<a href="{{ url_setting }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-tools me-2"></i>{{ link_setting }}</a>
+	<a href="{{ url_home }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-home me-2"></i>{{ link_home }}</a>
+  </div>
+  {% if error_warning %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+	  <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	</div>
+  {% endif %}
+  {% if success %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+	  <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	</div>
+  {% endif %}
+  <form method="POST" action="{{ url_authorization }}">
+	<div class="mt-3">
+	  <div class="form-outline">
+		<input type="text" name="client_id" value="{{ client_id }}" class="form-control"/>
+		<label class="form-label">{{ entry_client_id }}</label>
+	  </div>
+	</div>
+	<div class="mt-3">
+	  <div class="form-outline">
+		<input type="text" name="client_secret" value="{{ client_secret }}" class="form-control"/>
+		<label class="form-label">{{ entry_client_secret }}</label>
+	  </div>
+	</div>
+	<div class="mt-3">
+	  <select class="select" id="select-grant_type" name="grant_type" class="form-control">
+		<option value="password"{% if grant_type == 'password' %} selected{% endif %}>{{ option_grant_type_password }}</option>
+		<option value="partner"{% if grant_type == 'partner' %} selected{% endif %}>{{ option_grant_type_partner }}</option>
+	  </select>
+	  <label class="form-label select-label">{{ select_grant_type }}</label>
+	</div>
+	<div id="container-email" class="mt-3">
+	  <div class="form-outline">
+		<input type="text" name="email" value="{{ email }}" class="form-control"/>
+		<label class="form-label">{{ entry_email }}</label>
+	  </div>
+	</div>
+	<div id="container-password" class="mt-3{% if grant_type == 'partner' %} d-none{% endif %}">
+	  <div class="form-outline">
+		<input type="password" name="password" value="{{ password }}" class="form-control"/>
+		<label class="form-label">{{ entry_password }}</label>
+	  </div>
+	</div>
+	<div id="container-partner_code" class="mt-3{% if grant_type == 'password' %} d-none{% endif %}">
+	  <div class="form-outline">
+		<input type="text" name="partner_code" value="{{ partner_code }}" class="form-control"/>
+		<label class="form-label">{{ entry_partner_code }}</label>
+	  </div>
+	</div>
+	<div id="container-partner_secret" class="mt-3{% if grant_type == 'password' %} d-none{% endif %}">
+	  <div class="form-outline">
+		<input type="text" name="partner_secret" value="{{ partner_secret }}" class="form-control"/>
+		<label class="form-label">{{ entry_partner_secret }}</label>
+	  </div>
+	</div>
+	<button type="submit" class="btn btn-primary ps-5 pe-5 mt-3 mb-3"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+  </form>
+</div>
+</main>
+<script>
+$('#select-grant_type').change(function(event) {
+  if (event.target.value === 'partner') {
+	$('#container-password').addClass('d-none');
+	$('#container-partner_code').removeClass('d-none');
+	$('#container-partner_secret').removeClass('d-none');
+  } else {
+	$('#container-password').removeClass('d-none');
+	$('#container-partner_code').addClass('d-none');
+	$('#container-partner_secret').addClass('d-none');
+  }
+});
+</script>
+{{ footer }} 

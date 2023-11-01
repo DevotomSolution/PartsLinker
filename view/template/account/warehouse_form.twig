@@ -1,0 +1,83 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+  {% if error_warning %}
+  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle me-2"></i>{{ error_warning }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  <form method="POST" action="{{ action}}" class="mt-3">
+	<div class="form-outline mb-3">
+	  <input type="text" id="input-name" name="name" value="{{ name }}" class="form-control" />
+	  <label class="form-label" for="input-name">{{ entry_warehouse_name }}</label>
+	</div>
+	<div class="form-outline mb-3">
+	  <input type="text" id="input-sku_prefix" name="sku_prefix" value="{{ sku_prefix }}" class="form-control" />
+	  <label class="form-label" for="input-sku_prefix">{{ entry_sku_prefix }}</label>
+	</div>
+	<div class="form-outline mt-3">
+	  <input type="text" name="address_1" value="{{ address_1 }}" class="form-control" />
+	  <label class="form-label">{{ entry_address_1 }}</label>
+	</div>
+	<div class="form-outline mt-3">
+	  <input type="text" name="address_2" value="{{ address_2 }}" class="form-control" />
+	  <label class="form-label">{{ entry_address_2 }}</label>
+	</div>
+	<div class="form-outline mt-3">
+	  <input type="text" name="city" value="{{ city }}" class="form-control" />
+	  <label class="form-label">{{ entry_city }}</label>
+	</div>
+	<div class="form-outline mt-3">
+	  <input type="text" name="postcode" value="{{ postcode }}" class="form-control" />
+	  <label class="form-label">{{ entry_postcode }}</label>
+	</div>
+	<div class="mt-3">
+	  <select class="select" data-mdb-filter="true" name="country_id" id="input-country_id">
+		<option value="" selected>{{ text_select }}</option>
+		{% for country in countries %}
+		<option value="{{ country.country_id }}" {% if country.country_id == country_id %}selected{% endif %}>{{ country.name }}</option>
+		{% endfor %}
+	  </select>
+	  <label class="form-label select-label">{{ select_country }}</label>
+	</div>
+	<div class="mt-3">
+	  <select class="select" data-mdb-filter="true" name="zone_id" id="input-zone_id">
+		<option value="" selected>{{ text_select }}</option>
+		{% for zone in zones %}
+		<option value="{{ zone.zone_id }}" {% if zone.zone_id == zone_id %}selected{% endif %}>{{ zone.name }}</option>
+		{% endfor %}
+	  </select>
+	  <label class="form-label select-label">{{ select_zone }}</label>
+	</div>
+	<div class="form-outline mt-3">
+	  <input type="text" id="input-email" name="email" value="{{ email }}" class="form-control" />
+	  <label class="form-label" for="input-email">{{ entry_email }}</label>
+	</div>
+	<div class="form-outline mt-3 mb-3">
+	  <input type="text" id="input-phone" name="phone" value="{{ phone }}" class="form-control" />
+	  <label class="form-label" for="input-phone">{{ entry_phone }}</label>
+	</div>
+	<div class="text-start mt-3 mb-3">
+	  <button type="submit" class="btn btn-primary" style="min-width: 150px;"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+	  <a href="{{ cancel }}" class="btn btn-default"><i class="fa fa-reply me-2"></i>{{ button_cancel }}</a>
+	</div>
+  </form>
+</div>
+</main>
+<script>
+$('#input-country_id').change(function(event) {
+  $.ajax({
+	url: '{{ server }}index.php?route=account/setting.getZones&user_token={{ user_token }}&country_id=' + encodeURIComponent(event.target.value),
+	dataType: 'json',
+	success: function(json) {
+	  $('#input-zone_id option[value!=""]').remove();
+	  
+	  $.each(json, function (i, item) {
+		$('#input-zone_id').append($('<option>', { 
+		  value: item.zone_id,
+		  text : item.name
+		}));
+	  });
+	}
+  })
+});
+</script>
+{{ footer }} 

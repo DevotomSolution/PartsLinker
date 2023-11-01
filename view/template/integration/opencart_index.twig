@@ -1,0 +1,298 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+  <div class="text-end mb-3">
+    <a href="{{ connect }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-link me-2"></i>{{ text_connect }}</a>
+	<a href="{{ setting }}" class="btn btn-link" data-mdb-ripple-color="dark"><i class="fas fa-tools me-2"></i>{{ text_setting }}</a>
+	<span class="btn btn-link text-dark" data-mdb-ripple-color="dark"><i class="fas fa-home me-2"></i>{{ text_home }}</span>
+  </div>
+  {% if error_warning %}
+  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle me-2"></i>{{ error_warning }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  {% if success %}
+  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle me-2"></i>{{ success }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  <div class="progress mt-3" style="height: 20px;">
+	<div class="progress-bar progress-bar-products progress-bar-striped progress-bar-animated overflow-visible" role="progressbar" style="width: 0;"></div>
+  </div>
+  <button type="button" id="button-upload-products" class="btn btn-primary mt-3">{{ button_upload_products }} ({{ total }})</button>
+  <div class="d-inline-block mt-3">
+	<div class="form-outline">
+	  <input type="number" id="input-skip" name="skip" value="0" class="form-control" />
+	  <label class="form-label" for="input-price">{{ entry_skip }}</label>
+	</div>
+  </div>
+  <div id="container-msg" class="border rounded mt-4 overflow-hidden d-flex flex-column d-none" style="height: 350px;">
+	<div class="border-bottom d-flex align-items-center p-2">
+	  <strong>{{ text_results }}</strong>
+	</div>
+	<div class="bg-dark bg-opacity-10 overflow-auto flex-fill p-2">
+	  <ul id="list-msg" class="list-unstyled"></ul>
+	</div>
+  </div>
+  <div class="progress mt-5" style="height: 20px;">
+	<div class="progress-bar progress-bar-manufacturers progress-bar-striped progress-bar-animated overflow-visible" role="progressbar" style="width: 0;"></div>
+  </div>
+  <button type="button" id="button-upload-manufacturers" class="btn btn-primary mt-3">{{ button_upload_manufacturers }}</button>
+  <div class="progress mt-5" style="height: 20px;">
+	<div class="progress-bar progress-bar-categories progress-bar-striped progress-bar-animated overflow-visible" role="progressbar" style="width: 0;"></div>
+  </div>
+  <button type="button" id="button-upload-categories" class="btn btn-primary mt-3">{{ button_upload_categories }}</button>
+  <div class="progress mt-5" style="height: 20px;">
+	<div class="progress-bar progress-bar-filters progress-bar-striped progress-bar-animated overflow-visible" role="progressbar" style="width: 0;"></div>
+  </div>
+  <button type="button" id="button-upload-filters" class="btn btn-primary mt-3">{{ button_upload_filters }}</button>
+</div>
+</main>
+<script>
+let start = 0;
+let total = {{ total }};
+
+$('input[name=\'skip\']').change(function() {
+  start = parseInt($('input[name=\'skip\']').val());
+});
+
+let uploadProductsButtonHtml = $('#button-upload-products').html();
+
+function uploadProducts() {
+  $.ajax({
+	url: '{{ server }}index.php?route=integration/onlineshop/opencart.uploadProducts&user_token={{ user_token }}&start=' + start,
+	dataType: 'json',
+	success: function(json) {
+	  for(let index in json) {
+		if(json[index].success == 1) {
+		  addMsg(index, json[index].message);
+		} else {
+		  addMsg(index, json[index].message, 'danger');
+		}
+	  }
+	  
+	  start += 20;
+	  
+	  if(start > total) {
+		start = total;
+	  }
+	  
+	  $('.progress-bar-products').html(start + ' / '  + total);
+	  $('.progress-bar-products').width(Math.ceil(start/total*100)+'%');
+	  
+	  if(start < total && Object.keys(json).length >= 20) {
+		uploadProducts();
+		return;
+	  }
+	
+	  $('#button-upload-products').html(uploadProductsButtonHtml);
+	}
+  });
+}
+
+$('#button-upload-products').click(function() {
+   $('#container-msg').removeClass('d-none');
+  $('#button-upload-products').addClass('disabled');
+  $('#button-upload-products').html('<div class="spinner-border spinner-border-sm me-1" role="status"></div>{{ text_loading }}');
+  uploadProducts();
+});
+
+let uploadManufacturersButtonHtml = $('#button-upload-manufacturers').html();
+let totalManufacturers = false;
+let totalUploadedManufacturers = 0;
+
+function uploadManufacturers(start = 0) {
+  $.ajax({
+	url: '{{ server }}index.php?route=integration/onlineshop/opencart.uploadManufacturers&user_token={{ user_token }}&start='+start,
+	dataType: 'json',
+	success: function(json) {
+	  if(json.error !== undefined) {
+		addAlert('{{ text_upload_manufacturers }}', json.error, 'danger', 10000);
+		return;
+	  } else if(json.total !== undefined) {
+		totalUploadedManufacturers += json.total;
+	  }
+	  
+	  if(start + 50 <= totalManufacturers) {
+		$('.progress-bar-manufacturers').html(Math.ceil(start/totalManufacturers*100)+'%');
+	    $('.progress-bar-manufacturers').width(Math.ceil(start/totalManufacturers*100)+'%');
+	  } else {
+	    $('.progress-bar-manufacturers').html('100%');
+	    $('.progress-bar-manufacturers').width('100%');
+	  }
+	  
+	  if(start + 50 < totalManufacturers) {
+	    uploadManufacturers(start + 50);
+		return;
+	  }
+	  
+	  $('#button-upload-manufacturers').html(uploadManufacturersButtonHtml);
+	  
+	  if(json.error === undefined || totalUploadedManufacturers > 0) {
+	    addAlert('{{ text_upload_manufacturers }}', totalUploadedManufacturers, 'success', 10000);
+	  }
+	},
+	error: function() {
+	  $('#button-upload-manufacturers').html(uploadManufacturersButtonHtml);
+	}
+  });
+}
+
+$('#button-upload-manufacturers').click(function() {
+  $('#button-upload-manufacturers').addClass('disabled');
+  $('#button-upload-manufacturers').html('<div class="spinner-border spinner-border-sm me-1" role="status"></div>{{ text_loading }}');
+  
+  $.ajax({
+	url: '{{ server }}index.php?route=integration/onlineshop/opencart.getTotalManufacturers&user_token={{ user_token }}',
+	dataType: 'json',
+	success: function(json) {
+	  if(json.total !== undefined) {
+		totalManufacturers = json.total;
+		uploadManufacturers();
+	  } else {
+		addAlert('{{ text_upload_manufacturers }}', json.error, 'danger', 10000);
+	  }
+	},
+	error: function() {
+	  $('#button-upload-manufacturers').html(uploadManufacturersButtonHtml);
+	}
+  });
+});
+
+let uploadCategoriesButtonHtml = $('#button-upload-categories').html();
+let totalCategories = false;
+let totalUploadedCategories = 0;
+
+function uploadCategories(start = 0) {
+  $.ajax({
+	url: '{{ server }}index.php?route=integration/onlineshop/opencart.uploadCategories&user_token={{ user_token }}&start='+start,
+	dataType: 'json',
+	success: function(json) {
+	  if(json.error !== undefined) {
+		addAlert('{{ text_upload_categories }}', json.error, 'danger', 10000);
+		return;
+	  } else if(json.total !== undefined) {
+		totalUploadedCategories += json.total;
+	  }
+	  
+	  if(start + 50 <= totalCategories) {
+		$('.progress-bar-categories').html(Math.ceil(start/totalCategories*100)+'%');
+	    $('.progress-bar-categories').width(Math.ceil(start/totalCategories*100)+'%');
+	  } else {
+	    $('.progress-bar-categories').html('100%');
+	    $('.progress-bar-categories').width('100%');
+	  }
+	  
+	  if(start + 50 < totalCategories) {
+	    uploadCategories(start + 50);
+		return;
+	  }
+	  
+	  $('#button-upload-categories').html(uploadCategoriesButtonHtml);
+	  
+	  if(json.error === undefined || totalUploadedCategories > 0) {
+	    addAlert('{{ text_upload_categories }}', totalUploadedCategories, 'success', 10000);
+	  }
+	},
+	error: function() {
+	  $('#button-upload-categories').html(uploadCategoriesButtonHtml);
+	}
+  });
+}
+
+$('#button-upload-categories').click(function() {
+  $('#button-upload-categories').addClass('disabled');
+  $('#button-upload-categories').html('<div class="spinner-border spinner-border-sm me-1" role="status"></div>{{ text_loading }}');
+  
+  $.ajax({
+	url: '{{ server }}index.php?route=integration/onlineshop/opencart.getTotalCategories&user_token={{ user_token }}',
+	dataType: 'json',
+	success: function(json) {
+	  if(json.total !== undefined) {
+		totalCategories = json.total;
+		uploadCategories();
+	  } else {
+		addAlert('{{ text_upload_categories }}', json.error, 'danger', 10000);
+	  }
+	},
+	error: function() {
+	  $('#button-upload-categories').html(uploadCategoriesButtonHtml);
+	}
+  });
+});
+
+let uploadFiltersButtonHtml = $('#button-upload-filters').html();
+let totalFilters = false;
+let totalUploadedFilters = 0;
+
+function uploadFilters(start = 0) {
+  $.ajax({
+	url: '{{ server }}index.php?route=integration/onlineshop/opencart.uploadFilters&user_token={{ user_token }}&start='+start,
+	dataType: 'json',
+	success: function(json) {
+	  if(json.error !== undefined) {
+		addAlert('{{ text_upload_filters }}', json.error, 'danger', 10000);
+		return;
+	  } else if(json.total !== undefined) {
+		totalUploadedFilters += json.total;
+	  }
+	  
+	  if(start + 50 <= totalFilters) {
+		$('.progress-bar-filters').html(Math.ceil(start/totalFilters*100)+'%');
+	    $('.progress-bar-filters').width(Math.ceil(start/totalFilters*100)+'%');
+	  } else {
+	    $('.progress-bar-filters').html('100%');
+	    $('.progress-bar-filters').width('100%');
+	  }
+	  
+	  if(start + 50 < totalFilters) {
+	    uploadFilters(start + 50);
+		return;
+	  }
+	  
+	  $('#button-upload-filters').html(uploadFiltersButtonHtml);
+	  
+	  if(json.error === undefined || totalUploadedFilters > 0) {
+	    addAlert('{{ text_upload_filters }}', totalUploadedFilters, 'success', 10000);
+	  }
+	},
+	error: function() {
+	  $('#button-upload-filters').html(uploadFiltersButtonHtml);
+	}
+  });
+}
+
+$('#button-upload-filters').click(function() {
+  $('#button-upload-filters').addClass('disabled');
+  $('#button-upload-filters').html('<div class="spinner-border spinner-border-sm me-1" role="status"></div>{{ text_loading }}');
+  
+  $.ajax({
+	url: '{{ server }}index.php?route=integration/onlineshop/opencart.getTotalFilters&user_token={{ user_token }}',
+	dataType: 'json',
+	success: function(json) {
+	  if(json.total !== undefined) {
+		totalFilters = json.total;
+		uploadFilters();
+	  } else {
+		addAlert('{{ text_upload_filters }}', json.error, 'danger', 10000);
+	  }
+	},
+	error: function() {
+	  $('#button-upload-filters').html(uploadFiltersButtonHtml);
+	}
+  });
+});
+
+function addMsg(title, text, type = 'success') {
+  let html = '<li class="mb-1">';
+  
+	if(type === 'success') {
+	  html += '<i class="fas fa-check-circle me-2 text-success"></i>';
+	} else if(type === 'danger') {
+	  html += '<i class="fas fa-question-circle me-2 text-danger"></i>';
+	}
+  
+	html += '<strong>' + title + '</strong> - ' + text;
+	
+  html += '</li>';
+
+  $('#list-msg').prepend(html);
+}
+</script>
+{{ footer }} 

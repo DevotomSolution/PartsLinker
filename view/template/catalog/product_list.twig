@@ -1,0 +1,454 @@
+{{ header }}{{ navigation }}
+<!--Main layout-->
+<main style="margin-top: 58px" class="pt-4">
+  <div class="container-fluid">
+	{% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% if success %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	<div class="d-flex flex-wrap align-items-center">
+	  <div class="flex-fill d-flex align-items-center">
+		<div class="me-3">
+		  <select class="select" id="select-warehouse_id">
+		    <option value="0">{{ text_all_warehouses }}</option>
+			{% for warehouse in warehouses %}
+			<option value="{{ warehouse.warehouse_id }}" {% if warehouse.warehouse_id == warehouse_id %}selected{% endif %}>{{ warehouse.name }}</option>
+			{% endfor %}
+		  </select>
+		</div>
+		<div class="flex-fill d-none d-md-block position-relative me-3">
+		  <div id="search" class="form-outline">
+			<input type="text" name="search" value="{{ search }}" class="form-control" autofocus/>
+			<label class="form-label">{{ text_search }}</label>
+		  </div>
+		  <button type="button" id="btn-search" class="btn btn-outline-primary fs-7 border-0 position-absolute ps-3 pe-3 h-100" style="top: 0; right: 0;" data-mdb-color="dark"><i class="fas fa-search"></i></button>
+		</div>
+	  </div>
+	  <div><a href="{{ add }}" class="btn btn-primary"><i class="fas fa-plus"></i><span class="ms-2">{{ button_add }}</span></a></div>
+	</div>
+	<div class="d-block d-md-none position-relative mt-3">
+	  <div id="search-m" class="form-outline">
+		<input type="text" name="search-m" value="{{ search }}" class="form-control"/>
+		<label class="form-label">{{ text_search }}</label>
+	  </div>
+	  <button type="button" id="btn-search-m" class="btn btn-outline-primary fs-7 border-0 position-absolute ps-3 pe-3 h-100" style="top: 0; right: 0;" data-mdb-color="dark"><i class="fas fa-search"></i></button>
+	</div>
+	{% if filter_off == 0 %}
+	<div class="row">
+	  <div class="col-12 col-md-4 mt-3">
+		<select class="select" data-mdb-filter="true" name="filter_vehicle_brand" class="form-control">
+		  <option value=""></option>
+		  {% for brand in vehicle_brands %}
+		  <option value="{{ brand.id }}" {% if filter_vehicle_brand == brand.id %}selected{% endif %}>{{ brand.name }}</option>
+		  {% endfor %}
+		</select>
+		<label class="form-label select-label">{{ select_vehicle_brand }}</label>
+	  </div>
+	  <div class="col-12 col-md-4 mt-3">
+		<select class="select" data-mdb-filter="true" name="filter_vehicle_model" class="form-control">
+		  <option value=""></option>
+		  {% for model in vehicle_models %}
+		  <option id = "vehicle{{ model.id }}" value="{{ model.id }}" {% if filter_vehicle_model == model.id %}selected{% endif %}>{{ model.name }}</option>
+		  {% endfor %}
+		</select>
+		<label class="form-label select-label">{{ select_vehicle_model }}</label>
+	  </div>
+	  <div class="col-12 col-md-4 mt-3">
+		<select class="select" data-mdb-filter="true" id="filter-engine" name="filter_vehicle_engine" class="form-control">
+		  <option value=""></option>
+		  {% for engine in vehicle_engines %}
+			<option value="{{ engine.id }}" {% if filter_vehicle_engine == engine.id %}selected{% endif %}>{{ engine.name }}</option>
+		  {% endfor %}
+		</select>
+		<label class="form-label select-label">{{ select_vehicle_engine }}</label>
+	  </div>
+	</div>
+	<div id="categories-carousel"></div>
+	{% endif %}
+	{% if products %}
+	  <div class="d-flex justify-content-end flex-wrap mt-3">
+	    <div class="dropdown d-flex d-md-none">
+		  <a class="btn btn-primary dropdown-toggle" href="#" role="button" id="sort" data-mdb-toggle="dropdown" aria-expanded="false">Sort by </a>
+		  <ul class="dropdown-menu" aria-labelledby="sort">
+		    {% for sort_url_data in sort_url %}
+			<li><a class="dropdown-item" href="{{ sort_url_data.url }}">{{ sort_url_data.title }}</a></li>
+			{% endfor %}
+		  </ul>
+		</div>
+		<div class="btn-group d-md-flex d-none">
+		  {% for sort_url_data in sort_url %}
+		  <a href="{{ sort_url_data.url }}" class="btn btn-primary{% if sort_url_data.active %} active{% endif %}">{{ sort_url_data.title }}</a>
+		  {% endfor %}
+		</div>
+	  </div>
+	  {% for product in products %}
+	  <div id="{{ product.sku }}" class="card shadow-3 mt-3 bg-opacity-10 {% if product.status == '0' %}bg-dark{% endif %}">
+		<div class="card-body row align-items-center">
+			<div class="d-none d-lg-flex col-lg-8 align-items-center">
+				<img src="{{ product.image_min }}" alt="{{ product.name }}" href="{{ product.image }}" style="min-width: 75px;" class="img-thumbnail product-image me-4" />
+				<a href="{{ product.label }}" class="me-4"><img src="{{ server }}view/img/qr.png" style="min-width: 75px;" class="img-thumbnail"/></a>
+				<div class="me-4">{{ product.sku }}</div>
+			    <a href="{{ product.preview }}">{{ product.name }}</a>
+			</div>
+			<div class="col-lg-2 d-none d-lg-block text-center text-danger">{% if product.special %}<span style="text-decoration: line-through;">{{ product.price }}</span><br/><div>{{ product.special }}</div>{% else %}{{ product.price }}{% endif %}</div>
+			<div class="col-lg-1 d-none d-lg-block text-center">{% if product.quantity <= 0 %}<span class="text-warning">{{ product.quantity }}</span>{% elseif product.quantity <= 5 %}<span class="text-danger">{{ product.quantity }}</span>{% else %}<span class="text-success">{{ product.quantity }}</span>{% endif %}</div>
+			<div class="col-3 col-lg-1 d-none d-lg-block text-end">
+			  <div class="dropdown">
+				<button	class="btn btn-primary"	type="button" id="{{ product.sku }}dropdownMenuButton" data-mdb-toggle="dropdown" aria-expanded="false"><i class="fas fa-bars"></i></button>
+				<ul class="dropdown-menu" aria-labelledby="{{ product.sku }}dropdownMenuButton">
+				  <li><a class="dropdown-item" href="{{ product.edit }}"><i class="fas fa-pencil-alt me-2"></i>{{ button_edit }}</a></li>
+				  <li><button data-sku="{{ product.sku }}" class="dropdown-item btn-cart"><i class="fas fa-shopping-cart me-2"></i>{{ button_cart }}</button></li>
+				  <li><button data-sku="{{ product.sku }}" data-status="{{ product.status }}" class="dropdown-item btn-disable">{% if product.status == '0' %}<i class="fas fa-eye me-2"></i>{{ button_enable }}{% else %}<i class="fas fa-eye-slash me-2"></i>{{ button_disable }}{% endif %}</button></li>
+				  <li><button data-sku="{{ product.sku }}" id="btn-onlineshop-synchronization-{{ product.sku }}-mob" class="dropdown-item btn-onlineshop-synchronization"><i class="fas fa-sync me-2"></i>{{ button_onlineshop_synchronization }}</button></li>
+				  <li><a class="dropdown-item text-danger" href="{{ product.delete }}"><i class="fas fa-trash me-2"></i>{{ button_delete }}</a></li>
+				</ul>
+			  </div>
+			</div>
+			<div class="d-flex d-lg-none col-lg-12 align-items-center mb-3">
+			  <div><img src="{{ product.image_min }}" alt="{{ product.name }}" href="{{ product.image }}" style="min-width: 75px; top: 0;" class="img-thumbnail product-image me-4" /></div>
+			  <div class="flex-fill d-flex flex-column">
+				<a href="{{ product.preview }}" class="fs-7" style="min-height: 30px;">{{ product.name_min }}</a>
+				<div>
+				  <a class="btn btn-primary btn-floating me-1 mt-2" href="{{ product.edit }}"><i class="fas fa-pencil-alt"></i></a>
+				  <button data-sku="{{ product.sku }}" class="btn btn-primary btn-floating btn-cart me-1 mt-2"><i class="fas fa-shopping-cart"></i></button>
+				  <button data-sku="{{ product.sku }}" id="btn-onlineshop-synchronization-{{ product.sku }}" class="btn btn-primary btn-floating btn-onlineshop-synchronization me-1 mt-2"><i class="fas fa-sync"></i></button>
+				  <a class="btn btn-danger btn-floating mt-2" href="{{ product.delete }}"><i class="fas fa-trash"></i></a>
+				</div>
+			  </div>			  
+			</div>
+			<div class="col-4 d-lg-none text-center">{{ product.sku }}</div>
+			<div class="col-4 d-lg-none text-center">{% if product.quantity <= 0 %}<span class="text-warning">{{ product.quantity }}</span>{% elseif product.quantity <= 5 %}<span class="text-danger">{{ product.quantity }}</span>{% else %}<span class="text-success">{{ product.quantity }}</span>{% endif %}</div>
+			<div class="col-4 d-lg-none text-center text-danger">{% if product.special %}<span style="text-decoration: line-through;">{{ product.price }}</span><br/><div>{{ product.special }}</div>{% else %}{{ product.price }}{% endif %}</div>
+		</div>
+	  </div>
+	  {% endfor %}
+	{% endif %}
+	<div class="row mt-3 mb-3">
+	  <div class="col-sm-6 text-start">{{ pagination }}</div>
+	  <div class="col-sm-6 text-end">{{ results }}</div>
+	</div>
+  </div>
+</main>
+{{ footer }}
+<script>
+$(document).ready(function() {
+  {% if sync_product %}
+    $('#btn-onlineshop-synchronization-{{ sync_product }}').trigger('click');
+  {% endif %}
+
+  $('.product-image').magnificPopup({
+	type:'image',
+	gallery: {
+		enabled: false
+	}
+  });
+  
+  filterCategoryInit([
+    {% for category in categories %}
+	{id: "{{ category.category_id }}", image: "{{ category.image }}", name: "{{ category.name }}"{% for category_id in filter_category %}{% if category_id == category.category_id %}, active: 1{% endif %}{% endfor %}},
+	{% endfor %}
+  ]);
+  
+  const asyncFilter = async (query) => {
+	const url = `{{ server }}index.php?route=catalog/product.autocompleteSearch&user_token={{ user_token }}&search=${encodeURI(query)}`;
+	const response = await fetch(url);
+	const data = await response.json();
+	
+	return data;
+  };
+  
+  $('#search,#search-m').autocomplete({
+	filter: asyncFilter,
+	autoSelect: true,
+	noResults: '',
+	displayValue: function(value) {
+	  return value.name;
+	}
+  });
+  
+  $('#search,#search-m').on('itemSelect.mdb.autocomplete', function(e) {
+	if(e.value.sku !== undefined) {
+	  location = '{{ product }}&search=' + e.value.sku;
+	}
+  });
+  
+  $('input[name=\'search\']').keydown(function(e) {
+    window.setTimeout(function() {
+	  if(e.keyCode == 13 && e.target.classList.contains('focused') === true) {
+		$('#btn-search').trigger('click');
+	  }
+	}, 50);
+  });
+  
+  $('input[name=\'search-m\']').keydown(function(e) {
+	window.setTimeout(function() {
+	  if(e.keyCode == 13 && e.target.classList.contains('focused') === true) {
+		$('#btn-search-m').trigger('click');
+	  }
+	}, 50);
+  });
+});
+
+$('.btn-disable').click(function(e) {
+  e.currentTarget.disabled = true;
+  
+  let url;
+  
+  if(e.currentTarget.attributes['data-status'].value === '1') {
+	url = '{{ server }}index.php?route=catalog/product.disableProduct&user_token={{ user_token }}&sku=' + e.currentTarget.attributes['data-sku'].value;
+  } else {
+	url = '{{ server }}index.php?route=catalog/product.enableProduct&user_token={{ user_token }}&sku=' + e.currentTarget.attributes['data-sku'].value;
+  }
+
+  $.ajax({
+	url: url,
+	dataType: 'json',
+	success: function(json) {
+	  if(e.currentTarget.attributes['data-status'].value === '1') {
+		e.currentTarget.attributes['data-status'].value = 0;
+		e.currentTarget.innerHTML = '<i class="fas fa-eye me-2"></i>{{ button_enable }}';
+		$('#'+e.currentTarget.attributes['data-sku'].value).addClass('bg-dark');
+	  } else {
+		e.currentTarget.attributes['data-status'].value = 1;
+		e.currentTarget.innerHTML = '<i class="fas fa-eye-slash me-2"></i>{{ button_disable }}';
+		$('#'+e.currentTarget.attributes['data-sku'].value).removeClass('bg-dark');
+	  }
+	  
+	  if(json['alerts'] !== undefined) {
+		for(let i = 0; i < json['alerts'].length; i++) {
+		  addAlert(json['alerts'][i]['title'], json['alerts'][i]['alert'], json['alerts'][i]['type']);
+		}
+	  }
+	  
+	  e.currentTarget.disabled = false;
+	}
+  });
+});
+
+$('.btn-onlineshop-synchronization').click(function(e) {
+  {% if sync_product == '' %}
+  loading();
+  {% endif %}
+  
+  $('#btn-onlineshop-synchronization-' + e.currentTarget.attributes['data-sku'].value).attr('disabled', true);
+  $('#btn-onlineshop-synchronization-' +  e.currentTarget.attributes['data-sku'].value + '-mob').attr('disabled', true);
+  
+  let delay;
+
+  $.ajax({
+	url: '{{ server }}index.php?route=catalog/product.onlineshopSynchronization&user_token={{ user_token }}&sku=' + e.currentTarget.attributes['data-sku'].value,
+	dataType: 'json',
+	success: function(json) {
+	  if(json['alerts'] !== undefined) {
+		for(let i = 0; i < json['alerts'].length; i++) {
+		  delay = 0;
+  
+		  if(json['alerts'][i]['type'] === 'success') {
+			delay = 5000;
+		  }
+
+		  addAlert(json['alerts'][i]['title'], json['alerts'][i]['alert'], json['alerts'][i]['type'], delay);
+		  
+		  $('#btn-onlineshop-synchronization-' + e.currentTarget.attributes['data-sku'].value).attr('disabled', false);
+		  $('#btn-onlineshop-synchronization-' +  e.currentTarget.attributes['data-sku'].value + '-mob').attr('disabled', false);
+		  
+		  {% if sync_product == '' %}
+		  loading(false);
+		  {% endif %}
+		}
+	  }
+	}
+  });
+});
+
+$('select[name=\'filter_vehicle_brand\']').change(function() {
+  filter();
+});
+
+$('select[name=\'filter_vehicle_model\']').change(function() {
+  filter();
+});
+
+$('select[name=\'filter_vehicle_engine\']').change(function() {
+  filter();
+});
+
+$('#select-warehouse_id').change(function() {
+  filter();
+});
+
+function filter() {
+  let url = '';
+	
+  let filterBrand = $('select[name=\'filter_vehicle_brand\']').val();
+
+  if (filterBrand != '') {
+	url += '&filter_vehicle_brand=' + encodeURIComponent(filterBrand);
+  }
+
+  let filterModel = $('select[name=\'filter_vehicle_model\']').val();
+
+  if (filterBrand != '' && filterModel != '') {
+	url += '&filter_vehicle_model=' + encodeURIComponent(filterModel);
+  }
+	
+  let filterEngine = $('select[name=\'filter_vehicle_engine\']').val();
+
+  if (filterBrand != '' && filterModel != '' && filterEngine != '') {
+	url += '&filter_vehicle_engine=' + encodeURIComponent(filterEngine);
+  }
+  
+  let warehouseId = $('#select-warehouse_id').val();
+
+  if (warehouseId != '0') {
+	url += '&warehouse_id=' + encodeURIComponent(warehouseId);
+  }
+  
+  let sort = '{{ sort }}';
+  
+  if (sort) {
+	url += '&sort=' + encodeURIComponent(sort);
+  }
+  
+  let order = '{{ order }}';
+  
+  if (order) {
+	url += '&order=' + encodeURIComponent(order);
+  }
+	
+  location = '{{ product }}' + url;
+}
+
+$('#btn-search').on('click', function() {
+  let url = '';
+
+  let search = $('input[name=\'search\']').val();
+
+  if (search) {
+	url += '&search=' + encodeURIComponent(search);
+  }
+  
+  let warehouseId = $('#select-warehouse_id').val();
+
+  if (warehouseId != '0') {
+	url += '&warehouse_id=' + encodeURIComponent(warehouseId);
+  }
+	
+  let sort = '{{ sort }}';
+  
+  if (sort) {
+	url += '&sort=' + encodeURIComponent(sort);
+  }
+  
+  let order = '{{ order }}';
+  
+  if (order) {
+	url += '&order=' + encodeURIComponent(order);
+  }
+	
+  location = '{{ product }}' + url;
+});
+
+$('#btn-search-m').on('click', function() {
+  let url = '';
+
+  let search = $('input[name=\'search-m\']').val();
+
+  if (search) {
+	url += '&search=' + encodeURIComponent(search);
+  }
+  
+  let warehouseId = $('#select-warehouse_id').val();
+
+  if (warehouseId != '0') {
+	url += '&warehouse_id=' + encodeURIComponent(warehouseId);
+  }
+	
+  let sort = '{{ sort }}';
+  
+  if (sort) {
+	url += '&sort=' + encodeURIComponent(sort);
+  }
+  
+  let order = '{{ order }}';
+  
+  if (order) {
+	url += '&order=' + encodeURIComponent(order);
+  }
+	
+  location = '{{ product }}' + url;
+});
+
+function filterCategoryInit(items) {
+  if(items.length) {
+	$('#categories-carousel').addClass('mt-3');
+  } else {
+	$('#categories-carousel').removeClass('mt-3');
+	return;
+  }
+
+  let url = '';
+	
+  let filterBrand = $('select[name=\'filter_vehicle_brand\']').val();
+
+  if (filterBrand != '') {
+	url += '&filter_vehicle_brand=' + encodeURIComponent(filterBrand);
+  }
+
+  let filterModel = $('select[name=\'filter_vehicle_model\']').val();
+
+  if (filterBrand != '' && filterModel != '') {
+	url += '&filter_vehicle_model=' + encodeURIComponent(filterModel);
+  }
+	
+  let filterEngine = $('select[name=\'filter_vehicle_engine\']').val();
+
+  if (filterBrand != '' && filterModel != '' && filterEngine != '') {
+	url += '&filter_vehicle_engine=' + encodeURIComponent(filterEngine);
+  }
+  
+  let warehouseId = $('#select-warehouse_id').val();
+
+  if (warehouseId != '0') {
+	url += '&warehouse_id=' + encodeURIComponent(warehouseId);
+  }
+	
+  let sort = '{{ sort }}';
+  
+  if (sort) {
+	url += '&sort=' + encodeURIComponent(sort);
+  }
+  
+  let order = '{{ order }}';
+  
+  if (order) {
+	url += '&order=' + encodeURIComponent(order);
+  }
+	
+  url += '&filter_category='
+  
+  let carouselItems = [];
+  let item;
+  
+  for(let i = 0; i < items.length; i++) {
+	item = {};
+	item.url = '{{ product }}' + url + items[i].id;
+	item.image = items[i].image != '' ? '{{ url_image }}' + items[i].image : '';
+	item.title = items[i].name;
+	
+	if(items[i].active) {
+	  item.active = 1;
+	}
+  
+	carouselItems.push(item);
+  }
+  
+  $('#categories-carousel').carousel2(carouselItems);
+}
+</script>

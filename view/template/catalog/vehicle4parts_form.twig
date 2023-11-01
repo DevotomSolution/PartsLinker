@@ -1,0 +1,792 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-3">
+<div class="container-fluid">
+	{% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+    <div class="panel panel-default">
+      <div class="panel-body">
+		<ul class="nav nav-tabs flex-nowrap mb-3" id="tabs" role="tablist">
+		  <li class="nav-item" role="presentation">
+			<a
+			  class="nav-link active"
+			  id="tabs-tab-main"
+			  data-mdb-toggle="tab"
+			  href="#tabs-tabs-main"
+			  role="tab"
+			  aria-controls="tabs-tabs-main"
+			  aria-selected="true"
+			  >{{ tab_main }}</a
+			>
+		  </li>
+		  <li class="nav-item" role="presentation">
+			<a
+			  class="nav-link"
+			  id="tabs-tab-webview"
+			  data-mdb-toggle="tab"
+			  href="#tabs-tabs-webview"
+			  role="tab"
+			  aria-controls="tabs-tabs-webview"
+			  aria-selected="false"
+			  >{{ tab_webview }}</a
+			>
+		  </li>
+		</ul>
+		<form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-vehicle4parts" class="form-horizontal">
+		<div class="tab-content" id="tabs-content">
+		  <div class="tab-pane fade show active" id="tabs-tabs-main" role="tabpanel" aria-labelledby="tabs-tab-main">
+			  <div class="input-group input-group-lg mb-3 justify-content-end">
+				<span class="input-group-text text-warning fs-4 border-0" style="color:#386bc0!important">{{ text_sku }}</span>
+				<input type="text" class="form-control fs-4 text-warning" id="input-sku" maxlength="7" name="sku" style="max-width: 175px;color:#386bc0!important" placeholder="{{ placeholder_sku }}" value="{{ sku }}" {% if new == 0 %}readonly{% endif %}/>
+			  </div>
+			  <div class="dropzone border d-flex flex-column justify-content-center rounded mb-3" ondrop="fileDrop(event)" ondragover="return false">
+				<div class="dropmsg bg-dark bg-opacity-75 text-white"></div>
+				<div id="dropzone-files" class="w-100 dropzone-body">
+				  {% for vehicle4parts_image in vehicle4parts_images %}
+					<div class="m-2 dropzone-image" href="{{ vehicle4parts_image.path }}" style="background-image: url({{ vehicle4parts_image.path }})"><i class="fas fa-fast-backward p-1"></i><i class="fa fa-minus-circle p-1"></i><input type="hidden" name="vehicle4parts_image[]" value="{{ vehicle4parts_image.image }}" /></div>
+				  {% endfor %}
+					<div class="m-2 add-dropzone-image" onclick="fileExplorer();" style="background-image: url({{ server }}view/img/photo-plus.png)"></div>
+				  {% if vehicle4parts_video %}
+					<div class="m-2 dropzone-video" href="{{ vehicle4parts_video.path }}"><video ondragstart="return false" controls><source src="{{ vehicle4parts_video.path }}" type="{{ vehicle4parts_video.mime }}"></video><i class="fa fa-minus-circle p-1"></i><input type="hidden" name="vehicle4parts_video[video]" value="{{ vehicle4parts_video.video }}" /><input type="hidden" name="vehicle4parts_video[mime]" value="{{ vehicle4parts_video.mime }}" /></div>
+				  {% endif %}
+					<div class="m-2 add-dropzone-video" onclick="fileExplorer();" style="background-image: url({{ server }}view/img/video-plus.png)"></div>
+				</div>
+				<input type="file" multiple id="selectfile">
+			  </div>
+			  <div id="input-note-container" class="mb-2">
+				<textarea id="input-note" name="note">{{ note }}</textarea>
+			  </div>
+			  <div class="mb-3 d-flex justify-content-end align-items-center">
+				<button type="button" id="btn-translate" class="btn btn-primary d-none"><i class="fas fa-globe me-3"></i>{{ button_translate }}</button>
+			  </div>
+			  <div class="form-outline mb-3">
+				<input type="text" id="input-win" name="win" value="{{ win }}" class="form-control" />
+				<label class="form-label" for="input-win">{{ entry_win }}</label>
+			  </div>
+			  <div class="mb-3">
+				<select class="select" id="select-brand" data-mdb-filter="true" name="brand_id" class="form-control">
+				  <option value=""></option>
+				  {% for brand in brands %}
+				  <option value="{{ brand.id }}" {% if brand_id == brand.id %}selected{% endif %}>{{ brand.name }}</option>
+				  {% endfor %}
+				</select>
+				<label class="form-label select-label">{{ select_brand }}</label>
+			  </div>
+			  <div class="mb-3">
+				<select class="select" id="select-model" data-mdb-filter="true" name="model_id" class="form-control">
+				  <option value=""></option>
+				  {% for model in models %}
+				  <option id = "vehicle{{ model.id }}" value="{{ model.id }}" {% if model_id == model.id %}selected{% endif %}>{{ model.name }}</option>
+				  {% endfor %}
+				</select>
+				<label class="form-label select-label">{{ select_model }}</label>
+			  </div>
+			  <div class="mb-3">
+				<select class="select" id="select-engine" name="engine_id" class="form-control">
+				  <option value=""></option>
+				  {% for engine in engines %}
+				    <option value="{{ engine.id }}" {% if engine_id == engine.id %}selected{% endif %}>{{ engine.name }}</option>
+				  {% endfor %}
+				</select>
+				<label class="form-label select-label">{{ select_engine }}</label>
+			  </div>
+			  <div class="form-outline mb-3">
+				<input type="text" id="input-engine_code" name="engine_code" value="{{ engine_code }}" class="form-control"/>
+				<label class="form-label" for="input-engine_code">{{ entry_engine_code }}</label>
+			  </div>
+			  <div class="form-outline mb-3">
+				<input type="number" id="input-year" name="year" value="{{ year }}" class="form-control" max="9999"/>
+				<label class="form-label" for="input-year">{{ entry_year }}</label>
+			  </div>
+			  <div class="mb-3">
+				<select class="select" name="color_id" id="select-color_id" class="form-control">
+				  <option value=""></option>
+				  {% for color in colors %}
+				  <option value="{{ color.vehicle_color_id }}" {% if color_id == color.vehicle_color_id %}selected{% endif %}>{{ color.text }}</option>
+				  {% endfor %}
+				</select>
+				<label class="form-label select-label">{{ select_color }}</label>
+			  </div>
+			  <div class="form-outline mb-3">
+				<input type="text" id="input-color_code" name="color_code" value="{{ color_code }}" class="form-control" />
+				<label class="form-label" for="input-color_code">{{ entry_color_code }}</label>
+			  </div>
+			  <div class="mb-3">
+				<select class="select" id="select-transmission_id" name="transmission_id" class="form-control">
+				  <option value=""></option>
+				  {% for transmission in transmissions %}
+				  <option value="{{ transmission.vehicle_transmission_id }}" {% if transmission_id == transmission.vehicle_transmission_id %}selected{% endif %}>{{ transmission.text }}</option>
+				  {% endfor %}
+				</select>
+				<label class="form-label select-label">{{ select_transmission }}</label>
+			  </div>
+			  <div class="form-outline mb-3">
+				<input type="text" id="input-gb_code" name="gb_code" value="{{ gb_code }}" class="form-control"/>
+				<label class="form-label" for="input-gb_code">{{ entry_gb_code }}</label>
+			  </div>
+			  <div class="mb-3">
+				<select class="select" id="select-gb_speed_level" name="gb_speed_level" class="form-control">
+				  <option value=""></option>
+				  {% for gb_speed_level_data in gb_speed_levels %}
+				  <option value="{{ gb_speed_level_data.text }}" {% if gb_speed_level == gb_speed_level_data.text %}selected{% endif %}>{{ gb_speed_level_data.text }}</option>
+				  {% endfor %}
+				</select>
+				<label class="form-label select-label">{{ select_gb_speed_level }}</label>
+			  </div>
+			  <div class="mb-3">
+				<select class="select" id="select-drive_id" name="drive_id" class="form-control">
+				  <option value=""></option>
+				  {% for drive in drives %}
+				  <option value="{{ drive.vehicle_drive_id }}" {% if drive_id == drive.vehicle_drive_id %}selected{% endif %}>{{ drive.text }}</option>
+				  {% endfor %}
+				</select>
+				<label class="form-label select-label">{{ select_drive }}</label>
+			  </div>
+			  <div class="form-outline mb-3">
+				<input type="number" id="input-km" name="km" value="{{ km }}" class="form-control" />
+				<label class="form-label" for="input-km">{{ entry_km }}</label>
+			  </div>
+			  <div class="form-outline">
+				<input type="number" id="input-price" name="price" value="{{ price }}" class="form-control" />
+				<label class="form-label" for="input-price">{{ entry_price }}</label>
+			  </div>
+			  <div class="mt-3">
+				<select class="select" name="warehouse_id">
+				  <option value=""></option>
+				  {% for warehouse in warehouses %}
+				  <option value="{{ warehouse.warehouse_id }}" {% if warehouse.warehouse_id == warehouse_id %}selected{% endif %}>{{ warehouse.name }}</option>
+				  {% endfor %}
+				</select>
+				<label class="form-label select-label">{{ select_warehouse }}</label>
+			  </div>
+			  <div class="text-start mt-3 mb-3">
+				<button type="submit" form="form-vehicle4parts" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary" style="min-width: 150px;"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+				<a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply me-2"></i>{{ button_cancel }}</a>
+			  </div>
+		  </div>
+		  <div class="tab-pane fade" id="tabs-tabs-webview" role="tabpanel" aria-labelledby="tabs-tab-webview">
+		  
+			<ul class="nav nav-pills mb-3" id="description" role="tablist">
+			  {% for language in languages %}
+			  <li class="nav-item" role="presentation">
+				<a
+				  class="nav-link me-0 {% if language.language_id == user_language %}active{% endif %}"
+				  id="description-tab-{{ language.language_id }}"
+				  data-mdb-toggle="pill"
+				  href="#description-pills-{{ language.language_id }}"
+				  role="tab"
+				  aria-controls="description-pills-{{ language.language_id }}"
+				  aria-selected="true"
+				  ><img src="{{ server }}language/{{ language.code }}/{{ language.code }}.png" alt="{{ language.name }}" title="{{ language.name }}" /></a
+				>
+			  </li>
+			  {% endfor %}
+			</ul>
+			<div class="tab-content" id="description-content">
+			  {% for language in languages %}
+			  <div class="tab-pane fade {% if language.language_id == user_language %}show active{% endif %}" id="description-pills-{{ language.language_id }}" role="tabpanel" aria-labelledby="description-tab-{{ language.language_id }}">
+				<div class="form-outline">
+				  <input type="text" id="input-vehicle4parts_description-title-{{ language.language_id }}" name="vehicle4parts_description[{{ language.language_id }}][title]" value="{{ vehicle4parts_description[language.language_id].title }}" class="form-control"/>
+				  <label class="form-label" for="input-title">{{ entry_title }}</label>
+				</div>
+
+				<ul class="nav nav-pills mb-3 mt-2" role="tablist">
+				  <li class="nav-item col-12 col-sm-4" role="presentation">
+					<a
+					  class="nav-link active nowrap text-center me-0"
+					  id="wv-tab-specifications-{{ language.language_id }}"
+					  data-mdb-toggle="pill"
+					  href="#wv-pills-specifications-{{ language.language_id }}"
+					  role="tab"
+					  aria-controls="wv-pills-specifications-{{ language.language_id }}"
+					  aria-selected="true"
+					  >{{ tab_specifications }}</a
+					>
+				  </li>
+				  <li class="nav-item col-12 col-sm-4" role="presentation">
+					<a
+					  class="nav-link nowrap text-center me-0"
+					  id="wv-tab-product_list-{{ language.language_id }}"
+					  data-mdb-toggle="pill"
+					  href="#wv-pills-product_list-{{ language.language_id }}"
+					  role="tab"
+					  aria-controls="wv-pills-product_list-{{ language.language_id }}"
+					  aria-selected="false"
+					  >{{ tab_product_list }}</a
+					>
+				  </li>
+				  <li class="nav-item col-12 col-sm-4" role="presentation">
+					<a
+					  class="nav-link nowrap text-center me-0"
+					  id="wv-tab-description-{{ language.language_id }}"
+					  data-mdb-toggle="pill"
+					  href="#wv-pills-description-{{ language.language_id }}"
+					  role="tab"
+					  aria-controls="wv-pills-description-{{ language.language_id }}"
+					  aria-selected="false"
+					  >{{ tab_description }}</a
+					>
+				  </li>
+				</ul>
+				<div class="tab-content" id="wv-content-{{ language.language_id }}">
+				  <div class="tab-pane fade show active" id="wv-pills-specifications-{{ language.language_id }}" role="tabpanel" aria-labelledby="wv-tab-specifications-{{ language.language_id }}">
+					<textarea id="input-vehicle4parts_description-specifications-{{ language.language_id }}" name="vehicle4parts_description[{{ language.language_id }}][specifications]">{{ vehicle4parts_description[language.language_id].specifications }}</textarea>
+				  </div>
+				  <div class="tab-pane fade" id="wv-pills-product_list-{{ language.language_id }}" role="tabpanel" aria-labelledby="wv-tab-product_list-{{ language.language_id }}">
+					{% if product_list %}
+					  <ol class="list-group list-group-light list-group-numbered">
+						{% for product in product_list %}
+						<li class="list-group-item d-flex align-items-center border-0"><a href="{{ product.link }}" target="blank" class="ms-3 me-auto">{{ product.name }}</a><span class="badge badge-primary rounded-pill fs-7">{{ product.price }}</span></li>
+						{% endfor %}
+					  </ol>
+					{% else %}
+					{{ text_no_results }}
+					{% endif %}
+				  </div>
+				  <div class="tab-pane fade" id="wv-pills-description-{{ language.language_id }}" role="tabpanel" aria-labelledby="wv-tab-description-{{ language.language_id }}">
+					<div id="input-description-wv-container" class="mb-3">
+					  <textarea id="input-vehicle4parts_description-note-{{ language.language_id }}" name="vehicle4parts_description[{{ language.language_id }}][note]">{{ vehicle4parts_description[language.language_id].note }}</textarea>
+					</div>
+				  </div>
+				</div>
+			  </div>
+			  {% endfor %}
+			  <div class="text-start mt-4 mb-3">
+				<button type="submit" form="form-vehicle4parts" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary" style="min-width: 150px;"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+				<a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply me-2"></i>{{ button_cancel }}</a>
+			  </div>
+			</div>
+		</div>
+		</form>
+      </div>
+    </div>
+</div>
+</main>
+{{ footer }} 
+<script>
+$(document).ready(function() {
+  dropRefresh();
+  magnificPopupInit();
+  
+  $('#input-note').summernote({
+	height: 150,
+	toolbar: false,
+	disableDragAndDrop: true,
+	tabDisable: true,
+	placeholder: '{{ entry_note }}',
+	callbacks: {
+	  onPaste: function(e) {
+		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+		e.preventDefault();
+		setTimeout( function(){
+		  document.execCommand( 'insertText', false, bufferText );
+		}, 10 );
+	  }
+	}
+  });
+  
+  {% for language in languages %}
+  $('#input-vehicle4parts_description-note-{{ language.language_id }}').summernote({
+	height: 300,
+	toolbar: false,
+	disableDragAndDrop: true,
+	tabDisable: true,
+	callbacks: {
+	  onPaste: function(e) {
+		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+		e.preventDefault();
+		setTimeout( function(){
+		  document.execCommand( 'insertText', false, bufferText );
+		}, 10 );
+	  }
+	}
+  });
+  
+  $('#input-vehicle4parts_description-specifications-{{ language.language_id }}').summernote({
+	height: 300,
+	toolbar: false,
+	disableDragAndDrop: true,
+	tabDisable: true,
+	callbacks: {
+	  onPaste: function(e) {
+		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+		e.preventDefault();
+		setTimeout( function(){
+		  document.execCommand( 'insertText', false, bufferText );
+		}, 10 );
+	  }
+	}
+  });
+  {% endfor %}
+  
+  $('#input-note-container').addVoiceTrigger(function(msg) {
+	$('#input-note').summernote('insertText', msg);
+  });
+  
+  $('#input-note').on('summernote.blur', function() {
+	if($('#input-note').summernote('code') === $('#input-vehicle4parts_description-note-{{ user_language }}').summernote('code')) {
+		return;
+	}
+	
+	$('#input-vehicle4parts_description-note-{{ user_language }}').summernote('code', $('#input-note').summernote('code'));
+	
+	$('#btn-translate').removeClass('d-none');
+  });
+});
+
+async function translate(text, languageTo) {
+  let translatedText;
+  
+  await $.ajax({
+	url: '{{ server }}index.php?route=tool/translate&user_token={{ user_token }}',
+	method: 'POST',
+	data: {language_to: languageTo, text: text},
+	dataType: 'json',
+  }).done(function(json) {
+	if(json['success']) {
+	  translatedText = json['text'];
+	} else {
+	  translatedText = '';
+	}
+  });
+  
+  return translatedText;
+}
+
+$('#btn-translate').click(async function() {
+  loading();
+  
+  $('#btn-translate').prop('disabled', true);
+
+  let note = $('#input-note').summernote('code');
+  
+  {% for language in languages %}
+	{% if language.language_id != user_language %}
+	  await translate(note, '{{ language.language_id }}').then(function(translatedText) {
+		$('#input-vehicle4parts_description-note-{{ language.language_id }}').summernote('code', translatedText);
+	  });
+	{% endif %}
+  {% endfor %}
+  
+  $('#btn-translate').before('<div class="text-success me-3"><i class="fas fa-check"></i></div>');
+  loading(false);
+});
+
+
+function generateWebViewSpecifications() {
+  let specifications;
+  
+  let win = $('#input-win').val();
+  let brandId = $('#select-brand').val();
+  let brandName = false;
+  
+  if(brandId) {
+    brandName = $("#select-brand option[value=\'"+brandId+"'\]").html();
+  }
+ 
+  let modelId = $('#select-model').val();
+  let modelName = false;
+  
+  if(modelId != '0') {
+	modelName = $("#select-model option[value=\'"+modelId+"'\]").html();
+  }
+  
+  let engineId = $('#select-engine').val();
+  let engineName = false;
+  
+  if(engineId != '0') {
+	engineName = $("#select-engine option[value=\'"+engineId+"'\]").html();
+  }
+  
+  let engineCode = $('#input-engine_code').val();
+  let year = $('#input-year').val();
+  
+  let colorId = $('#select-color_id').val();
+  let colorName = false;
+  
+  if(colorId != '0') {
+	colorName = $("#select-color_id option[value=\'"+colorId+"'\]").html();
+  }
+  
+  let colorCode = $('#input-color_code').val();
+  
+  let transmissionId = $('#select-transmission_id').val();
+  let transmissionName = false;
+  
+  if(transmissionId != '0') {
+	transmissionName = $("#select-transmission_id option[value=\'"+transmissionId+"'\]").html();
+  }
+  
+  let gbCode = $('#input-gb_code').val();
+  let gbSpeedLevel = $('#select-gb_speed_level').val();
+  
+  let driveId = $('#select-drive_id').val();
+  let driveName = false;
+  
+  if(driveId != '0') {
+    driveName = $("#select-drive_id option[value=\'"+driveId+"'\]").html();
+  }
+  
+  let km = $('#input-km').val();
+  
+  {% for language in languages %}
+    specifications = '';
+  
+	if(win) {
+	  specifications += '<p>- {{ translates[language.language_id].text_win }}'+win+'</p>';
+	}
+
+	if(brandName) {
+	  specifications += '<p>- {{ translates[language.language_id].text_brand }}'+brandName+'</p>';
+	}
+	
+	if(modelName) {
+	  specifications += '<p>- {{ translates[language.language_id].text_model }}'+modelName+'</p>';
+	}
+	
+	if(engineName) {
+	  specifications += '<p>- {{ translates[language.language_id].text_engine }}'+engineName+'</p>';
+	}
+	
+	if(engineCode) {
+	  specifications += '<p>- {{ translates[language.language_id].text_engine_code }}'+engineCode+'</p>';
+	}
+	
+	if(Number(year)) {
+	  specifications += '<p>- {{ translates[language.language_id].text_year }}'+year+'</p>';
+	}
+	
+	if(colorName) {
+	  specifications += '<p>- {{ translates[language.language_id].text_color }}'+colorName+'</p>';
+	}
+	
+	if(colorCode) {
+	  specifications += '<p>- {{ translates[language.language_id].text_color_code }}'+colorCode+'</p>';
+	}
+	
+	if(transmissionName) {
+	  specifications += '<p>- {{ translates[language.language_id].text_transmission }}'+transmissionName+'</p>';
+	}
+	
+	if(gbCode) {
+	  specifications += '<p>- {{ translates[language.language_id].text_gb_code }}'+gbCode+'</p>';
+	}
+	
+	if(gbSpeedLevel != 0) {
+	  specifications += '<p>- {{ translates[language.language_id].text_gb_speed_level }}'+gbSpeedLevel+'</p>';
+	}
+	
+	if(driveName) {
+	  specifications += '<p>- {{ translates[language.language_id].text_drive }}'+driveName+'</p>';
+	}
+	
+	if(km) {
+	  specifications += '<p>- {{ translates[language.language_id].text_km }}'+km+'</p>';
+	}
+	
+	$('#input-vehicle4parts_description-specifications-{{ language.language_id }}').summernote('code', specifications);
+  {% endfor %}
+}
+
+function generateWebViewTitle() {
+  let title = '';
+  
+  let brandId = $('#select-brand').val();
+
+  if(brandId) {
+	let brandName = $("#select-brand option[value=\'"+brandId+"'\]").html();
+	title += brandName;
+  }
+  
+  let modelId = $('#select-model').val();
+  
+  if(modelId != '0') {
+	let modelName = $("#select-model option[value=\'"+modelId+"'\]").html();
+	title += ' '+modelName;
+  }
+  
+  let engineId = $('#select-engine').val();
+
+  if(engineId != '0') {
+	let engineName = $("#select-engine option[value=\'"+engineId+"'\]").html();
+	title += ' '+engineName;
+  }
+  
+  {% for language in languages %}
+	 $('#input-vehicle4parts_description-title-{{ language.language_id }}').val(title.trim());
+  {% endfor %}
+}
+
+$('select[name=\'brand_id\']').change(function(event) {
+  $.ajax({
+	url: '{{ server }}index.php?route=catalog/vehicle4parts.getModels&user_token={{ user_token }}&brand_id=' + encodeURIComponent(event.target.value),
+	dataType: 'json',
+	success: function(json) {
+	  $('select[name=\'model_id\'] option[value!=""]').remove();
+
+	  $.each(json, function (i, item) {
+		$('select[name=\'model_id\']').append($('<option>', { 
+		  value: item.id,
+		  text : item.name
+		}));
+		generateWebViewSpecifications();
+		generateWebViewTitle();
+	  });
+	}
+  })
+});
+
+$('select[name=\'model_id\']').change(function(event) {
+  $.ajax({
+	url: '{{ server }}index.php?route=catalog/vehicle4parts.getEngines&user_token={{ user_token }}&model_id=' + encodeURIComponent(event.target.value),
+	dataType: 'json',
+	success: function(json) {
+	  $('#select-engine option[value!=""]').remove();
+
+	  $.each(json, function (i, item) {
+		$('#select-engine').append($('<option>', { 
+		  value: item.id,
+		  text : item.name
+		}));
+		generateWebViewSpecifications();
+		generateWebViewTitle();
+	  });
+	}
+  })
+});
+
+$('#select-engine').change(function() {
+  generateWebViewTitle();
+  generateWebViewSpecifications();
+});
+
+$('#input-engine_code').change(function() {
+  generateWebViewSpecifications();
+});
+
+$('#input-year').change(function() {
+  generateWebViewSpecifications();
+});
+
+$('#select-color_id').change(function() {
+  generateWebViewSpecifications();
+});
+
+$('#input-color_code').change(function() {
+  generateWebViewSpecifications();
+});
+
+$('#select-transmission_id').change(function() {
+  generateWebViewSpecifications();
+});
+
+$('#input-gb_code').change(function() {
+  generateWebViewSpecifications();
+});
+
+$('#select-gb_speed_level').change(function() {
+  generateWebViewSpecifications();
+});
+
+$('#select-drive_id').change(function() {
+  generateWebViewSpecifications();
+});
+
+$('#input-km').change(function() {
+  generateWebViewSpecifications();
+});
+
+$('#input-win').change(function() {
+  generateWebViewSpecifications();
+});
+
+$('#input-sku').change(function(event) {
+  if(event.target.value.length < 5 || event.target.value.length > 7) {
+	event.target.classList.add('text-danger');
+	event.target.focus();
+  } else {
+	event.target.classList.remove('text-danger');
+  }
+  
+  productSpecificationsInit();
+});
+
+
+// FILE DROP
+
+let files;
+let countImages = $('#dropzone-files .dropzone-image').length;
+let countVideos = $('#dropzone-files .dropzone-video').length;
+
+function fileDrop(e) {
+  e.preventDefault();
+  let files = e.dataTransfer.files;
+  
+  for(let i = 0; i < files.length; i++) {
+	if(files[i].type.match(/image.*/)) {
+	  if(countImages < 8) {
+		uploadImage(files[i]);
+	  }
+	  
+	  countImages++;
+	} else if(files[i].type.match(/video.*/)) {
+	  if(countVideos < 1) {
+		uploadVideo(files[i]);
+	  }
+	  
+	  countVideos++;
+	}
+  }
+}
+
+function fileExplorer() {
+  document.getElementById('selectfile').click();
+  document.getElementById('selectfile').onchange = function() {
+	files = document.getElementById('selectfile').files;
+	
+	for(let i = 0; i < files.length; i++) {
+	  if(files[i].type.match(/image.*/)) {
+		if(countImages < 8) {
+		  uploadImage(files[i]);
+		}
+		
+		countImages++;
+	  } else if(files[i].type.match(/video.*/)) {
+		if(countVideos < 1) {
+		  uploadVideo(files[i]);
+		}
+		
+		countVideos++;
+	  }
+	}
+  };
+}
+
+function dropRefresh() {
+  if(countImages >= 8) {
+	$('.add-dropzone-image').addClass('hide');
+  } else {
+	$('.add-dropzone-image').removeClass('hide');
+  }
+  if(countVideos) {
+	$('.add-dropzone-video').addClass('hide');
+  } else {
+	$('.add-dropzone-video').removeClass('hide');
+  }
+}
+
+async function uploadImage(file) {
+  if (file.type.match(/image.*/)) {
+	$('.dropmsg').html('<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>');
+	$('.dropmsg').addClass('d-flex');
+	
+	imgFile = await imageResize(file, '{{ MAX_IMAGE_WIDTH }}', '{{ MAX_IMAGE_HEIGHT }}');
+
+	let formData = new FormData();
+	formData.append('file', imgFile);
+ 
+	$.ajax({
+	  type: 'POST',
+	  url: '{{ server }}index.php?route=catalog/vehicle4parts.uploadImage&user_token={{ user_token }}',
+	  contentType: false,
+	  processData: false,
+	  data: formData,
+	  success:function(response) {
+		if(response.error !== undefined) {
+		  alert(response.error);
+		  countImages = $('#dropzone-files .dropzone-image').length;
+		  return;
+		}
+
+		$('#selectfile').val('');
+	
+		$('.add-dropzone-image').before('<div class="m-2 dropzone-image" href="' + response['path'] + '" style="background-image: url(' + response['path'] + ')"><i class="fas fa-fast-backward p-1"></i><i class="fa fa-minus-circle p-1"></i><input type="hidden" name="vehicle4parts_image[]" value="' + response['image'] + '" /></div>');
+		dropRefresh();
+		magnificPopupInit();
+	  }
+	});
+  }
+}
+
+function uploadVideo(file) {
+  if (file.type.match(/video.*/)) {
+	$('.dropmsg').html('<div class="spinner-border" role="status"><span class="visually-hidden">{{ text_loading }}</span></div>');
+	$('.dropmsg').addClass('d-flex');
+
+	let formData = new FormData();
+	formData.append('file', file);
+
+	$.ajax({
+	type: 'POST',
+	url: '{{ server }}index.php?route=catalog/vehicle4parts.uploadVideo&user_token={{ user_token }}',
+	contentType: false,
+	processData: false,
+	data: formData,
+	success:function(response) {
+		if(response.error !== undefined) {
+		  alert(response.error);
+		  countVideos = $('#dropzone-files .dropzone-video').length;
+		  return;
+		}
+
+		$('#selectfile').val('');
+		
+		$('.add-dropzone-video').before('<div class="m-2 dropzone-video" href="' + response['path'] + '">' + '<video ondragstart="return false" controls><source src="' + response['path'] + '" type="' + response['mime'] + '"></video><i class="fa fa-minus-circle p-1"></i><input type="hidden" name="vehicle4parts_video[video]" value="' + response['video'] + '" /><input type="hidden" name="vehicle4parts_video[mime]" value="' + response['mime'] + '" /></div>');
+		dropRefresh();
+		magnificPopupInit();
+	  }
+	});
+  }
+}
+
+$('#dropzone-files').delegate('.fa-minus-circle', 'click', function() {
+  $.magnificPopup.close();
+  $(this).parent().remove();
+  countImages = $('#dropzone-files .dropzone-image').length;
+  countVideos = $('#dropzone-files .dropzone-video').length;
+  dropRefresh();
+  magnificPopupInit();
+  return false;
+});
+
+$('#dropzone-files').delegate('.fa-fast-backward', 'click', function() {
+  $.magnificPopup.close();
+  let element = $(this).parent();
+  $(this).parent().remove();
+  $('#dropzone-files').prepend(element);
+  magnificPopupInit();
+});
+
+document.ondragenter = function() {
+  $('.dropmsg').html('{{ text_drop }}');
+  $('.dropmsg').addClass('d-flex');
+};
+
+document.onclick = function() {
+  $('.dropmsg').removeClass('d-flex');
+};
+
+$(document).ajaxStop(function() {
+  $('.dropmsg').removeClass('d-flex');
+});
+
+function magnificPopupInit() {
+  $('.dropzone-image, .dropzone-video').magnificPopup({
+	type:'image',
+	gallery: {
+		enabled: true
+	},
+	callbacks: {
+	  elementParse: function(item) {
+		if(item.el['0'].className.match('dropzone-video')) {
+		   item.type = 'iframe';
+		} else {
+		   item.type = 'image';
+		}
+	  }
+	}
+  });
+}
+</script>

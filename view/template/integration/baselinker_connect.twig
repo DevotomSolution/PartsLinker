@@ -1,0 +1,24 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+  <div class="text-end mb-3">
+	<span class="btn btn-link text-dark" data-mdb-ripple-color="dark"><i class="fas fa-link me-2"></i>{{ text_connect }}</span>
+	<a href="{{ setting }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-tools me-2"></i>{{ text_setting }}</a>
+	<a href="{{ home }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-home me-2"></i>{{ text_home }}</a>
+  </div>
+  {% if error_warning %}
+  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle me-2"></i>{{ error_warning }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  {% if success %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle me-2"></i>{{ success }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  <form method="POST" action="{{ action }}">
+	<div class="form-outline mt-3">
+	  <input type="text" name="token" value="{{ token }}" class="form-control"/>
+	  <label class="form-label">{{ entry_token }}</label>
+	</div>
+	<button type="submit" class="btn btn-primary ps-5 pe-5 mt-3 mb-3"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+  </form>
+</div>
+</main>
+{{ footer }} 

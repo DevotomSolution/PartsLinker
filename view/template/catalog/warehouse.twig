@@ -1,0 +1,193 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+    {% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% if success %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	<div class="d-flex flex-column flex-sm-row align-items-sm-center flex-wrap">
+	  <div class="me-sm-3">
+		<select class="select" id="select-warehouse_id">
+		  <option value="0">{{ text_all_warehouses }}</option>
+		  {% for warehouse in warehouses %}
+		  <option value="{{ warehouse.warehouse_id }}" {% if warehouse.warehouse_id == warehouse_id %}selected{% endif %}>{{ warehouse.name }}</option>
+		  {% endfor %}
+		</select>
+	  </div>
+	  <div class="flex-fill position-relative mt-sm-0 mt-3">
+		<div class="form-outline">
+		  <input type="text" name="search" value="{{ search }}" class="form-control" />
+		  <label class="form-label">{{ text_search }}</label>
+		</div>
+		<button type="button" id="btn-search" class="btn btn-outline-primary fs-7 border-0 position-absolute ps-3 pe-3 h-100" style="top: 0; right: 0;" data-mdb-color="dark"><i class="fas fa-search"></i></button>
+	  </div>
+	</div>
+	<div class="row mt-3">
+	  <div class="col-6 pe-0">
+		<div class="form-outline">
+		  <input type="text" name="cod" value="" id="input-cod" class="form-control" />
+		  <label class="form-label" for="input-cod">{{ entry_cod }}</label>
+		</div>
+	  </div>
+	  <div class="col-6">
+		<div class="form-outline">
+		  <input type="text" name="location" value="" id="input-location" class="form-control" />
+		  <label class="form-label" for="input-location">{{ entry_location }}</label>
+		</div>
+	  </div>
+	</div>
+	{% if products %}
+	  {% for product in products %}
+	  <div class="card shadow-3 mt-3">
+		<div class="card-body row align-items-center">
+			<div class="col-12 d-lg-none">{{ product.sku }}<span class="text-primary ps-2">{{ product.warehouse }}</span></div>
+			<div class="col-4 col-lg-4 d-flex align-items-center">
+			  <img src="{{ product.image }}" alt="{{ product.name }}" class="img-thumbnail me-4" style="min-width: 75px;"/>
+			  <a href="{{ product.label }}" class="d-none d-lg-inline-block"><img src="{{ server }}view/img/qr.png" class="img-thumbnail me-4" style="min-width: 75px;"/></a>
+			  <div class="d-none d-lg-block"><div>{{ product.sku }}</div><div class="text-primary">{{ product.warehouse }}</div></div>
+			</div>
+			<div id="{{ product.sku }}location" class="col-4 col-lg-2 text-center text-success">{{ product.location }}</div>
+			<div class="col-4 col-lg-2 text-end text-lg-center"><input type="number" class="form-control d-inline-block product-quantity text-center" data-sku="{{ product.sku }}" min="0" max="999" style="width: 70px;" value="{{ product.quantity }}"/></div>
+			<div id="{{ product.sku }}date_modified" class="d-none d-lg-block col-lg-2 text-end text-lg-center">{{ product.date_modified }}</div>
+			<div class="d-none d-lg-block col-lg-2 text-end"><a href="{{ product.edit }}" data-mdb-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary mt-1"><i class="fas fa-pencil-alt"></i></a></div>
+		</div>
+	  </div>
+	  {% endfor %}
+	{% endif %}
+	<div class="row mt-3">
+	  <div class="col-sm-6 text-start">{{ pagination }}</div>
+	  <div class="col-sm-6 text-end">{{ results }}</div>
+	</div>
+	<div class="row mt-3">
+	  <div class="col-9 pe-0">
+		<div class="form-outline">
+          <input type="text" name="text_location" value="" id="input-text_location" class="form-control" />
+		  <label class="form-label" for="input-text_location">{{ entry_location }}</label>
+        </div>
+	  </div>
+	  <div class="col-3">
+		<button type="button" id="button-print_location" class="btn btn-primary w-100"><i class="fas fa-print me-2"></i><span class="d-none d-md-inline">{{ button_print }}</span></button>
+	  </div>
+	</div>
+</div>
+</main>
+<div id="toPrint"><svg id="barcode"></svg></div>
+<script type="text/javascript">
+$('#select-warehouse_id').on('change', function() {
+  filter();
+});
+
+$('#btn-search').on('click', function() {
+  filter();
+});
+
+$('input[name=\'search\']').keydown(function(e) {
+  if(e.keyCode == 13) {
+	filter();
+  }
+});
+
+function filter() {
+  let url = '';
+  
+  let warehouseId = $('#select-warehouse_id').val();
+
+  if (warehouseId != '0') {
+	url += '&warehouse_id=' + encodeURIComponent(warehouseId);
+  }
+
+  let search = $('input[name=\'search\']').val();
+
+  if(search) {
+	url += '&search=' + encodeURIComponent(search);
+  }
+	
+  location = '{{ server }}index.php?route=catalog/warehouse&user_token={{ user_token }}' + url;
+}
+
+$('.product-quantity').on('focusout', function(e) {
+  $.ajax({
+	url: '{{ server }}index.php?route=catalog/warehouse.editQuantity&user_token={{ user_token }}&sku=' + encodeURIComponent(e.target.attributes['data-sku'].value) + '&quantity=' + encodeURIComponent(e.target.value),
+	dataType: 'json',
+	success: function(json) {
+	  if(json['date'] !== undefined) {
+		$('#'+e.target.attributes['data-sku'].value+'date_modified').html(json['date']);
+	  }
+	}
+  })
+});
+
+function beep() {
+  let snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");  
+  snd.play();
+}
+
+function beepError() {
+  let snd = new Audio("{{ server }}view/audio/error.mp3");  
+  snd.play();
+}
+
+$('#input-cod').keydown(function(event) {
+  if(event.keyCode == 13) {
+	$('#input-location').val('');
+	$('#input-location').focus();
+  }
+});
+
+$('#button-print_location').click(function(event) {
+  if(!$('#input-text_location').val().match(/[a-zA-Z0-9]{1,24}/)) {
+	return;
+  }
+
+  $('header').hide();
+  $('main').hide();
+  $('footer').hide();
+  $('#toPrint').show();
+  
+  JsBarcode("#barcode", $('#input-text_location').val(), {
+	textPosition: "top",
+	height: 52,
+	width: 2.5,
+	fontSize: 50,
+	textMargin: 6,
+	fontOptions: "bold",
+	margin: 0,
+  });
+  window.print();
+  
+  $('#toPrint').hide();
+  $('header').show();
+  $('main').show();
+  $('footer').show();
+});
+
+$('#input-location').keydown(function(event) {
+  if(event.keyCode == 13) {
+	$.ajax({
+	  url: '{{ server }}index.php?route=catalog/warehouse.editLocation&user_token={{ user_token }}&cod=' + encodeURIComponent($('#input-cod').val()) + '&location=' + encodeURIComponent($('#input-location').val()),
+	  dataType: 'json',
+	  success: function(json) {
+		if(json['sku'] !== undefined) {
+		  $('#'+json['sku']+'location').html($('#input-location').val());
+		  addAlert('{{ text_success }}', json['sku'], 'success', 1000);
+		  beep();
+		} else {
+		  addAlert('{{ text_error }}', $('#input-cod').val(), 'danger', 1000);
+		  beepError();
+		}
+		
+		$('#input-cod').val('');
+		$('#input-location').val('');
+		$('#input-cod').focus();
+	  }
+	})
+  }
+});
+</script>
+{{ footer }} 

@@ -1,0 +1,38 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+  <div class="text-end mb-3">
+    <a href="{{ account }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-user me-2"></i>{{ text_account }}</a>
+    <a href="{{ warehouse }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-warehouse me-2"></i>{{ text_warehouse }}</a>
+	<span class="btn btn-link text-dark" data-mdb-ripple-color="dark"><i class="fas fa-file-lines me-2"></i>{{ text_invoice }}</span>
+	<a href="{{ password }}" class="btn btn-link" data-mdb-ripple-color="dark"><i class="fas fa-key me-2"></i>{{ text_password }}</a>
+  </div>
+  {% if error_warning %}
+  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle me-2"></i>{{ error_warning }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  {% if success %}
+  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle me-2"></i>{{ success }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  <form action="{{ action }}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+	<div class="form-outline">
+	  <input type="number" min="0" max="100" name="tax" value="{{ tax }}" class="form-control" required/>
+	  <label class="form-label">{{ entry_tax }}</label>
+	</div>
+	<button type="submit" class="btn btn-primary mt-3" style="min-width: 150px;"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+  </form>
+</div>
+</main>
+<script>
+const forms = document.querySelectorAll('.needs-validation');
+
+Array.prototype.slice.call(forms).forEach((form) => {
+  form.addEventListener('submit', (event) => {
+	if (!form.checkValidity()) {
+	  event.preventDefault();
+	  event.stopPropagation();
+	}
+	form.classList.add('was-validated');
+  }, false);
+});
+</script>
+{{ footer }} 

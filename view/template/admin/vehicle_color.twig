@@ -1,0 +1,68 @@
+{{ header }}{{ navigation }}
+<!--Main layout-->
+<main style="margin-top: 58px" class="pt-3">
+  <div class="container-fluid">
+	{% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% if success %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% for language in languages %}
+	<div class="form-outline mb-2">
+	  <img src="{{ server }}language/{{ language.code }}/{{ language.code }}.png" class="trailing"/>
+	  <input type="text" name="color_description[{{ language.language_id }}]" id="color_description-{{ language.language_id }}" class="form-control" />
+	  <label class="form-label" for="color_description-{{ language.language_id }}">{{ text_color }}</label>
+	</div>
+	{% endfor %}
+	<div class="text-end"><button type="button" id="add" class="btn btn-primary"><i class="fas fa-plus me-2"></i>{{ button_add }}</button></div>
+	<div id="colors" class="mt-3">
+	  {% for color in vehicle_colors %}
+	  <div class="chip me-0">{{ color.text }}<i id="{{ color.vehicle_color_id }}" class="close fas fa-times"></i></div>
+	  {% endfor%}
+	</div>
+  </div>
+</main>
+<script>
+closeInit();
+
+$('#add').click(function() {
+  let data = {color_description: {}};
+
+  {% for language in languages %}
+  data.color_description[{{ language.language_id }}] = $('#color_description-{{ language.language_id }}').val();
+  {% endfor %}
+
+  $.ajax({  
+	url: '{{ server }}index.php?route=admin/vehicle/color.add&user_token={{ user_token }}',
+	method: 'POST',
+	data: data,
+	dataType: 'json'
+  }).done(function(json) {
+    if(json['color_id'] !== undefined) {
+	  $('#colors').append('<div class="chip me-0">'+json['text']+'<i id="'+json['color_id']+'" class="close fas fa-times"></i></div>');
+	  
+	  {% for language in languages %}
+	  $('#color_description-{{ language.language_id }}').val('');
+	  {% endfor %}
+	  
+	  closeInit();
+	}
+  });
+});
+
+function closeInit() {
+  $('.close').click(function(e) {
+	$.ajax({
+	  url: '{{ server }}index.php?route=admin/vehicle/color.remove&user_token={{ user_token }}&color_id=' + encodeURIComponent(e.target.id),
+	});
+	
+	e.target.parentElement.remove();
+  });
+}
+</script>
+{{ footer }}

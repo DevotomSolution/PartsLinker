@@ -1,0 +1,25 @@
+<p class="lead">{{ text_import_history }}</p>
+<table class="table table-bordered mb-1">
+  <thead>
+	<tr>
+	  <td class="text-start"><strong>{{ column_date }}</strong></td>
+	  <td class="text-start"><strong>{{ column_filename }}</strong></td>
+	  <td class="text-start"><strong>{{ column_result }}</strong></td>
+	</tr>
+  </thead>
+    <tbody>
+      {% if histories %}
+      {% for history in histories %}
+      <tr>
+        <td class="text-start">{{ history.date }}</td>
+        <td class="text-start">{{ history.filename }}</td>
+        <td class="text-start">{{ history.result }}</td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <td class="text-center" colspan="3">{{ text_no_results }}</td>
+      </tr>
+      {% endif %}
+    </tbody>
+</table>

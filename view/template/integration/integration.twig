@@ -1,0 +1,78 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-3">
+<div class="container-fluid">
+  {% if error_warning %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle me-2"></i>{{ error_warning }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  {% if success %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle me-2"></i>{{ success }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  <div>
+	<p class="lead text-primary">{{ text_marketplace }}</p>
+	{% for marketplace_data in marketplace %}
+	<div class="d-inline-block me-3 mb-3" style="height: 90px; width: 150px;">
+	  <a class="btn btn-light shadow-1-strong bg-image hover-zoom p-3 w-100 h-100 position-relative" href="{{ marketplace_data.link }}">
+	    {% if marketplace_data.active %}
+		<div class="position-absolute text-primary fs-6" style="top: 0; right: 4px;"><i class="far fa-square-check"></i></div>
+		{% else %}
+		<div class="position-absolute text-primary fs-6" style="top: 0; right: 4px;"><i class="far fa-square"></i></div>
+		{% endif %}
+		<img src="{{ marketplace_data.image }}" class="w-100 h-100" alt="{{ marketplace_data.title }}"/>
+		<div class="position-absolute text-secondary" style="bottom: 0; right: 4px;">{{ marketplace_data.country }}</div>
+	  </a>
+	</div>
+	{% endfor %}
+  </div>
+  <div>
+	<p class="lead text-primary">{{ text_onlineshop }}</p>
+	{% for onlineshop_data in onlineshop %}
+	<div class="d-inline-block me-3 mb-3" style="height: 90px; width: 150px;">
+	  <a class="btn btn-light shadow-1-strong bg-image hover-zoom p-3 w-100 h-100 position-relative" href="{{ onlineshop_data.link }}">
+		{% if onlineshop_data.active %}
+		<div class="position-absolute text-primary fs-6" style="top: 0; right: 4px;"><i class="far fa-square-check"></i></div>
+		{% else %}
+		<div class="position-absolute text-primary fs-6" style="top: 0; right: 4px;"><i class="far fa-square"></i></div>
+		{% endif %}
+		<img src="{{ onlineshop_data.image }}" class="w-100 h-100" alt="{{ onlineshop_data.title }}"/>
+		<div class="position-absolute text-secondary" style="bottom: 0; right: 4px;">{{ onlineshop_data.country }}</div>
+	  </a>
+	</div>
+	{% endfor %}
+  </div>
+  <div>
+	<p class="lead text-primary">{{ text_delivery }}</p>
+	{% for delivery_method in delivery %}
+	<div class="d-inline-block me-3 mb-3" style="height: 90px; width: 150px;">
+	  <a class="btn btn-light shadow-1-strong bg-image hover-zoom p-3 w-100 h-100 position-relative" href="{{ delivery_method.link }}">
+		{% if delivery_method.active %}
+		<div class="position-absolute text-primary fs-6" style="top: 0; right: 4px;"><i class="far fa-square-check"></i></div>
+		{% else %}
+		<div class="position-absolute text-primary fs-6" style="top: 0; right: 4px;"><i class="far fa-square"></i></div>
+		{% endif %}
+		<img src="{{ delivery_method.image }}" class="w-100 h-100" alt="{{ delivery_method.title }}"/>
+		<div class="position-absolute text-secondary" style="bottom: 0; right: 4px;">{{ delivery_method.country }}</div>
+	  </a>
+	</div>
+	{% endfor %}
+  </div>
+  <div>
+	<p class="lead text-primary">{{ text_other }}</p>
+	{% for other_data in other %}
+	<div class="d-inline-block me-3 mb-3" style="height: 90px; width: 150px;">
+	  <a class="btn btn-light shadow-1-strong bg-image hover-zoom p-3 w-100 h-100 position-relative" href="{{ other_data.link }}">
+		{% if other_data.active %}
+		<div class="position-absolute text-primary fs-6" style="top: 0; right: 4px;"><i class="far fa-square-check"></i></div>
+		{% else %}
+		<div class="position-absolute text-primary fs-6" style="top: 0; right: 4px;"><i class="far fa-square"></i></div>
+		{% endif %}
+		<img src="{{ other_data.image }}" class="w-100 h-100" alt="{{ other_data.title }}"/>
+		<div class="position-absolute text-secondary" style="bottom: 0; right: 4px;">{{ other_data.country }}</div>
+	  </a>
+	</div>
+	{% endfor %}
+  </div>
+</div>
+</main>
+<script>
+</script>
+{{ footer }} 

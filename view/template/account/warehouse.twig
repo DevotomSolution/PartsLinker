@@ -1,0 +1,33 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+  <div class="text-end mb-3">
+    <a href="{{ account }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-user me-2"></i>{{ text_account }}</a>
+	<span class="btn btn-link text-dark" data-mdb-ripple-color="dark"><i class="fas fa-warehouse me-2"></i>{{ text_warehouse }}</span>
+	<a href="{{ invoice }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-file-lines me-2"></i>{{ text_invoice }}</a>
+	<a href="{{ password }}" class="btn btn-link" data-mdb-ripple-color="dark"><i class="fas fa-key me-2"></i>{{ text_password }}</a>
+  </div>
+  {% if error_warning %}
+  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle me-2"></i>{{ error_warning }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  {% if success %}
+  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle me-2"></i>{{ success }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  {% if warehouses %}
+  <div class="mb-3">
+	<table class="table table-sm">
+	  {% for warehouse in warehouses %}
+		<tr>
+		  <td><a href="{{ warehouse.edit }}">{{ warehouse.name }}<i class="fas fa-pen ms-3"></i></a></td>
+		  <td class="text-end"><a href="{{ warehouse.delete }}" class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i></button></td>
+		</tr>
+	  {% endfor %}
+	</table>
+  </div>
+  {% endif %}
+  <div class="mb-3">
+	<a href="{{ add }}" style="min-width: 150px;" class="btn btn-primary"><i class="fa fa-plus me-2"></i>{{ button_add }}</a>
+  </div>
+</div>
+</main>
+{{ footer }} 

@@ -1,0 +1,98 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+  <div class="text-end">
+	<a href="{{ authorize }}" class="btn btn-link" data-mdb-ripple-color="dark"><i class="fas fa-user-circle me-2"></i>{{ text_authorize }}</a>
+	<a href="{{ setting }}" class="btn btn-link" data-mdb-ripple-color="dark"><i class="fas fa-tools me-2"></i>{{ text_setting }}</a>
+	<span class="btn btn-link text-dark" data-mdb-ripple-color="dark"><i class="fas fa-home me-2"></i>{{ text_home }}</span>
+  </div>
+  {% if error_warning %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle me-2"></i>{{ error_warning }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  {% if success %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle me-2"></i>{{ success }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button> </div>
+  {% endif %}
+  <div class="progress mt-3" style="height: 20px;">
+	<div class="progress-bar progress-bar-striped progress-bar-animated overflow-visible" role="progressbar" style="width: 0;"></div>
+  </div>
+  <button type="button" id="button-upload" class="btn btn-primary mt-3">{{ button_upload }} ({{ total }})</button>
+  <div class="d-inline-block mt-3">
+	<div class="form-outline">
+	  <input type="number" id="input-skip" name="skip" value="0" class="form-control" />
+	  <label class="form-label" for="input-skip">{{ entry_skip }}</label>
+	</div>
+  </div>
+  <div id="container-msg" class="border rounded mt-4 overflow-hidden d-flex flex-column d-none" style="height: 350px;">
+	<div class="border-bottom d-flex align-items-center p-2">
+	  <strong>{{ text_results }}</strong>
+	</div>
+	<div class="bg-dark bg-opacity-10 overflow-auto flex-fill p-2">
+	  <ul  id="list-msg" class="list-unstyled"></ul>
+	</div>
+  </div>
+</div>
+</main>
+<script>
+let start = 0;
+let skip = 0;
+let total = {{ total }};
+
+$('input[name=\'skip\']').change(function() {
+  skip = parseInt($('input[name=\'skip\']').val());
+  start = skip;
+});
+
+let uploadButtonHtml = $('#button-upload').html();
+
+function upload() {
+  $.ajax({
+	url: '{{ server }}index.php?route=integration/onlineshop/ebayit.uploadProducts&user_token={{ user_token }}&start=' + start,
+	dataType: 'json',
+	success: function(json) {
+	  for(let index in json) {
+		if(json[index].success == 1) {
+		  addMsg(index, json[index].message);
+		} else {
+		  addMsg(index, json[index].message, 'danger');
+		}
+	  }
+	  
+	  start += Object.keys(json).length;
+	  
+	  $('.progress-bar').html(start+'/'+total);
+	  $('.progress-bar').width(Math.ceil(start/total*100)+'%');
+
+	  if(start < total && Object.keys(json).length >= 20) {
+		upload();
+		return;
+	  }
+	
+	  $('#button-upload').html(uploadButtonHtml);
+	}
+  });
+}
+
+$('#button-upload').click(function() {
+  $('#container-msg').removeClass('d-none');
+  $('#button-upload').addClass('disabled');
+  $('#button-upload').html('<div class="spinner-border spinner-border-sm me-1" role="status"></div>{{ text_loading }}');
+  upload();
+});
+
+function addMsg(title, text, type = 'success') {
+  let html = '<li class="mb-1">';
+  
+	if(type === 'success') {
+	  html += '<i class="fas fa-check-circle me-2 text-success"></i>';
+	} else if(type === 'danger') {
+	  html += '<i class="fas fa-question-circle me-2 text-danger"></i>';
+	}
+  
+	html += '<strong>' + title + '</strong> - ' + text;
+	
+  html += '</li>';
+
+  $('#list-msg').prepend(html);
+}
+</script>
+{{ footer }} 

@@ -1,0 +1,15 @@
+{{ header }}{{ navigation }}
+<!--Main layout-->
+<main style="margin-top: 58px" class="pt-3">
+  <div class="container-fluid">
+	{% if success %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	<form method="POST">
+	  <button type="submit" class="btn btn-primary">{{ button_clear }}</button>
+	</form>
+  </div>
+</main>
+{{ footer }}

@@ -1,0 +1,72 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-3">
+<div class="container-fluid">
+   <div id="label">
+	<div style="width: {{ label_width }}px; height: {{ label_height }}px; color: #000; overflow: hidden;">
+	  {% if label_type == 1 %}
+	  <table>
+		<tr>
+		  <td id="qr" rowspan="2"></td>
+		  <td style="padding-left: 5px; text-align: center; font-size: {{ font_size }}px; line-height: {{ font_size }}px; font-weight: bold;">{{ text }}</td>
+		</tr>
+		<tr>
+		  <td style="padding-left: 5px; line-height: {{ barcode_height }}px;"><svg id="barcode"></svg></td>
+		</tr>
+	  </table>
+	  {% elseif label_type == 2 %}
+	  <table>
+		<tr>
+		  <td colspan="2" style="padding-left: 5px; text-align: center; font-size: {{ font_size }}px; line-height: {{ font_size }}px; font-weight: bold;">{{ text }}</td>
+		</tr>
+		<tr>
+		  <td id="qr"></td>
+		  <td style="padding-left: 5px; line-height: {{ barcode_height }}px;"><svg id="barcode"></svg></td>
+		</tr>
+	  </table>
+	  {% endif %}
+	</div>
+  </div>
+  <div id="qr-hover" class="d-none"></div>
+  <button id="btn-print" class="btn btn-primary ms-1 mt-1"><i class="fas fa-print"></i> {{ button_print }}</button>
+  <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default mt-1"><i class="fa fa-reply"></i> {{ button_cancel }}</a>
+</div>
+</main>
+<script>
+$(document).ready(function(){
+  JsBarcode("#barcode", "{{ text }}", {
+	width: {{ barcode_width }},
+	height: {{ barcode_height }},
+	margin: 0,
+	displayValue: false,
+  });
+
+  $('#qr-hover').qrcode({
+	size: {{ qrcode_size }},
+	text: '{{ link }}',
+	ecLevel: 'L',
+  });
+
+  let canvas = document.getElementById('qr-hover').children['0'];
+  let dataUrl = canvas.toDataURL();
+	
+  $('#qr').html('<img src="' + dataUrl + '">');
+});
+
+$('#btn-print').click(function(){
+  let contentPrint = $('#label').html();
+
+  $('header').hide();
+  $('main').hide();
+  $('footer').hide();
+  
+  $(document.body).append('<div id="toPrint">' + contentPrint + '</div>');
+  window.print();
+  
+  $('#toPrint').remove();
+  
+  $('header').show();
+  $('main').show();
+  $('footer').show();
+})
+</script>
+{{ footer }}

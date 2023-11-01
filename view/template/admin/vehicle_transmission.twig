@@ -1,0 +1,68 @@
+{{ header }}{{ navigation }}
+<!--Main layout-->
+<main style="margin-top: 58px" class="pt-3">
+  <div class="container-fluid">
+	{% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% if success %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% for language in languages %}
+	<div class="form-outline mb-2">
+	  <img src="{{ server }}language/{{ language.code }}/{{ language.code }}.png" class="trailing"/>
+	  <input type="text" name="transmission_description[{{ language.language_id }}]" id="transmission_description-{{ language.language_id }}" class="form-control" />
+	  <label class="form-label" for="transmission_description-{{ language.language_id }}">{{ text_transmission }}</label>
+	</div>
+	{% endfor %}
+	<div class="text-end"><button type="button" id="add" class="btn btn-primary"><i class="fas fa-plus me-2"></i>{{ button_add }}</button></div>
+	<div id="transmissions" class="mt-3">
+	  {% for transmission in vehicle_transmissions %}
+	  <div class="chip me-0">{{ transmission.text }}<i id="{{ transmission.vehicle_transmission_id }}" class="close fas fa-times"></i></div>
+	  {% endfor%}
+	</div>
+  </div>
+</main>
+<script>
+closeInit();
+
+$('#add').click(function() {
+  let data = {transmission_description: {}};
+
+  {% for language in languages %}
+  data.transmission_description[{{ language.language_id }}] = $('#transmission_description-{{ language.language_id }}').val();
+  {% endfor %}
+
+  $.ajax({  
+	url: '{{ server }}index.php?route=admin/vehicle/transmission.add&user_token={{ user_token }}',
+	method: 'POST',
+	data: data,
+	dataType: 'json'
+  }).done(function(json) {
+    if(json['transmission_id'] !== undefined) {
+	  $('#transmissions').append('<div class="chip me-0">'+json['text']+'<i id="'+json['transmission_id']+'" class="close fas fa-times"></i></div>');
+	  
+	  {% for language in languages %}
+	  $('#transmission_description-{{ language.language_id }}').val('');
+	  {% endfor %}
+	}
+	
+	closeInit();
+  });
+});
+
+function closeInit() {
+  $('.close').click(function(e) {
+	$.ajax({
+	  url: '{{ server }}index.php?route=admin/vehicle/transmission.remove&user_token={{ user_token }}&transmission_id=' + encodeURIComponent(e.target.id),
+	});
+	
+	e.target.parentElement.remove();
+  });
+}
+</script>
+{{ footer }}

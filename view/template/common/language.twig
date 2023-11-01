@@ -1,0 +1,28 @@
+<div class="dropdown">
+  <a class="btn btn-link me-3 me-lg-0 dropdown-toggle hidden-arrow" href="#" id="navbarDropdown" role="button" data-mdb-toggle="dropdown" aria-expanded="false"><img src="{{ server }}language/{{ current_language.code }}/{{ current_language.code }}.png" alt="{{ current_language.name }}" title="{{ current_language.name }}" style="vertical-align: baseline;"/></a>
+  <ul class="dropdown-menu dropdown-menu-end overflow-hidden" aria-labelledby="navbarDropdown">
+  {% if current_language %}
+	<li>
+	  <button class="btn btn-link btn-block text-start language-select" type="button" name="{{ current_language.id }}"><img src="{{ server }}language/{{ current_language.code }}/{{ current_language.code }}.png" title="{{ current_language.name }}" /> {{ current_language.name }}</button>
+	</li>
+  {% endif %}
+	<li><hr class="dropdown-divider" /></li>
+  {% for language in languages %}
+	<li>
+	  <button class="btn btn-link btn-block text-start language-select" type="button" name="{{ language.id }}"><img src="{{ server }}language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}</button>
+	</li> 
+  {% endfor %}
+  </ul>
+</div>
+<script>
+$('.language-select').on('click', function(e) {
+  $.ajax({
+	url: '{{ server }}index.php?route=common/language.setLanguage',
+	type: 'POST',
+	data: {'language_id': $(this).attr('name')},
+	success: function() {
+	  location.reload();
+	}
+  });
+});
+</script>

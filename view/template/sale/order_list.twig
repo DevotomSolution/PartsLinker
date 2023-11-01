@@ -1,0 +1,142 @@
+{{ header }}{{ navigation }}
+<!--Main layout-->
+<main style="margin-top: 58px" class="pt-4">
+  <div class="container-fluid">
+	{% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% if success %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	<div class="d-flex flex-wrap align-items-center">
+	  <div class="flex-fill d-flex align-items-center position-relative me-3">
+		<div id="search" class="form-outline">
+		  <input type="text" name="search" value="{{ search }}" class="form-control" />
+		  <label class="form-label">{{ text_search }}</label>
+		</div>
+		<button type="button" id="btn-search" class="btn btn-outline-primary fs-7 border-0 position-absolute ps-3 pe-3 h-100" style="top: 0; right: 0;" data-mdb-color="dark"><i class="fas fa-search"></i></button>
+	  </div>
+	  <div><a href="{{ add }}" class="btn btn-primary"><i class="fas fa-plus"></i><span class="ms-2">{{ button_add }}</span></a></div>
+	</div>
+	<div class="row">
+	  <div class="col-12 col-md-6 col-lg-3 mt-3">
+		<select class="select" name="filter_order_status_id" id="input-order-status" class="form-control">
+		  <option value=""></option>
+		  {% for order_status in order_statuses %}
+		  {% if order_status.order_status_id == filter_order_status_id %}
+		  <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+		  {% else %}
+		  <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+		  {% endif %}
+		  {% endfor %}            
+		</select>
+		<label class="form-label select-label">{{ select_order_status }}</label>
+	  </div>
+	  <div class="col-12 col-md-6 col-lg-3 mt-3">
+		<select class="select" name="filter_onlineshop" id="input-onlineshop" class="form-control">
+		  <option value=""></option>
+		  {% for onlineshop in onlineshops %}
+		   <option value="{{ onlineshop.code }}" {% if filter_onlineshop == onlineshop.code %}selected="selected"{% endif %}>{{ onlineshop.title }}</option>
+		  {% endfor %} 
+		</select>
+		<label class="form-label select-label">{{ select_onlineshop }}</label>
+	  </div>
+	  <div class="col-12 col-md-4 col-lg-2 mt-3">
+		<div class="form-outline datepicker" data-mdb-format="yyyy-mm-dd">
+		  <input type="text" name="filter_date_added" value="{{ filter_date_added }}" class="form-control" id="input-date-added" />
+		  <label for="input-date-added" class="form-label">{{ entry_date_added }}</label>
+		</div>
+	  </div>
+	  <div class="col-12 col-md-4 col-lg-2 mt-3">
+		<div class="form-outline datepicker" data-mdb-format="yyyy-mm-dd">
+		  <input type="text" name="filter_date_modified" value="{{ filter_date_modified }}" class="form-control" id="input-date-modified" />
+		  <label for="input-date-modified" class="form-label">{{ entry_date_modified }}</label>
+		</div>
+	  </div>
+	  <div class="col-12 col-md-4 col-lg-2 mt-3">
+		<button type="button" id="button-filter" class="btn btn-outline-primary w-100"><i class="fa fa-filter me-2"></i>{{ button_filter }}</button>
+	  </div>
+	</div>
+	{% if orders %}
+	  {% for order in orders %}
+	  <div class="card shadow-3 mt-3">
+		<div class="card-body row align-items-center">
+		  <div class="col-12 col-sm-3 col-lg-1 text-center text-sm-start">
+		    <a href="{{ order.view }}" data-mdb-toggle="tooltip"  title="{{ text_view }}">#{{ order.order_id }}</a>
+			<div class="d-lg-none {% if order.order_status_id == fraud_status_id %}text-danger{% endif %} {% for complete_status_id in complete_status %}{% if order.order_status_id == complete_status_id %}text-success{% endif %}{% endfor %} {% for processing_status_id in processing_status %}{% if order.order_status_id == processing_status_id %}text-warning{% endif %}{% endfor %}">{{ order.order_status }}</div>
+		  </div>
+		  <div class="col-12 col-sm-5 col-lg-5 text-center text-sm-start">{{ order.customer }}{% if order.onlineshop %}<br/><span class="text-muted">{{ order.onlineshop }}{% if order.onlineshop_order_id %} ({{ order.onlineshop_order_id }})</span>{% endif %}{% endif %}</div>
+		  <div class="col-lg-2 d-sm-none d-lg-block text-center text-sm-end text-danger">{{ order.total }}</div>
+		  <div class="col-lg-1 d-none d-lg-block text-center text-sm-start {% if order.order_status_id == fraud_status_id %}text-danger{% endif %} {% for complete_status_id in complete_status %}{% if order.order_status_id == complete_status_id %}text-success{% endif %}{% endfor %} {% for processing_status_id in processing_status %}{% if order.order_status_id == processing_status_id %}text-warning{% endif %}{% endfor %}">{{ order.order_status }}</div>
+		  <div class="col-lg-1 d-none d-lg-flex text-center text-sm-end">
+		    {% if order.invoice %}<a href="{{ order.invoice }}" target="blank" class="btn btn-primary btn-sm me-1" data-mdb-toggle="tooltip" title="{{ text_invoice }}"><i class="fas fa-file-invoice"></i></a>{% endif %}
+		  </div>
+		  <div class="col-12 col-sm-4 col-lg-2 text-center text-sm-end text-lg-end"><span>{{ order.date_added }}</span><br/><span class="{% if order.order_status_id == fraud_status_id %}text-danger{% endif %} {% for complete_status_id in complete_status %}{% if order.order_status_id == complete_status_id %}text-success{% endif %}{% endfor %} {% for processing_status_id in processing_status %}{% if order.order_status_id == processing_status_id %}text-warning{% endif %}{% endfor %}">{{ order.date_modified }}</span></div>
+		  <div class="col-12 d-flex d-lg-none">
+			<div class="text-start d-none d-sm-block text-danger">{{ order.total }}</div>
+			<div class="text-center text-sm-end flex-fill">
+			  {% if order.edit %}<a href="{{ order.edit }}" class="me-2"><i class="fas fa-edit me-2"></i>{{ text_edit }}</a>{% endif %}
+			  {% if order.invoice %}<a href="{{ order.invoice }}"><i class="fas fa-file-invoice me-2"></i>{{ text_invoice }}</a>{% endif %}
+			</div>
+		  </div>
+		</div>
+	  </div>
+	  {% endfor %}
+	{% endif %}
+	<div class="row mt-3">
+	  <div class="col-sm-6 text-start">{{ pagination }}</div>
+	  <div class="col-sm-6 text-end">{{ results }}</div>
+	</div>
+  </div>
+</main>
+<script>
+$(document).ready(function() {
+  loading();
+  
+  $.ajax({
+	url: '{{ server }}index.php?route=sale/order.getOrdersFromOnlineshops&user_token={{ user_token }}',
+	dataType: 'json'
+  }).done(function(json) {
+	if(json['total'] > 0) {
+	  location.reload();
+	}
+	
+	loading(false);
+  });
+});
+
+$('#button-filter').on('click', function() {
+  url = '';
+
+  let filter_order_status_id = $('select[name=\'filter_order_status_id\']').val();
+
+  if (filter_order_status_id !== '') {
+	url += '&filter_order_status_id=' + encodeURIComponent(filter_order_status_id);
+  }
+	
+  let filter_onlineshop = $('select[name=\'filter_onlineshop\']').val();
+
+  if (filter_onlineshop !== '') {
+	url += '&filter_onlineshop=' + encodeURIComponent(filter_onlineshop);
+  }
+
+  let filter_date_added = $('input[name=\'filter_date_added\']').val();
+
+  if (filter_date_added) {
+	url += '&filter_date_added=' + encodeURIComponent(filter_date_added);
+  }
+
+  let filter_date_modified = $('input[name=\'filter_date_modified\']').val();
+
+  if (filter_date_modified) {
+	url += '&filter_date_modified=' + encodeURIComponent(filter_date_modified);
+  }
+
+  location = '{{ server }}index.php?route=sale/order&user_token={{ user_token }}' + url;
+});
+</script>
+{{ footer }}

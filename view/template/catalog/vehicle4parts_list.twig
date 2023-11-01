@@ -1,0 +1,249 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+	{% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% if success %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	<div class="d-flex flex-wrap align-items-center">
+	  <div class="flex-fill d-flex align-items-center">
+		<div class="me-3">
+		  <select class="select" id="select-warehouse_id">
+		    <option value="">{{ text_all_warehouses }}</option>
+			{% for warehouse in warehouses %}
+			<option value="{{ warehouse.warehouse_id }}" {% if warehouse.warehouse_id == warehouse_id %}selected{% endif %}>{{ warehouse.name }}</option>
+			{% endfor %}
+		  </select>
+		</div>
+		<div class="flex-fill d-none d-md-block position-relative me-3">
+		  <div id="search" class="form-outline">
+			<input type="text" name="search" value="{{ search }}" class="form-control" />
+			<label class="form-label">{{ text_search }}</label>
+		  </div>
+		  <button type="button" id="btn-search" class="btn btn-outline-primary fs-7 border-0 position-absolute ps-3 pe-3 h-100" style="top: 0; right: 0;" data-mdb-color="dark"><i class="fas fa-search"></i></button>
+		</div>
+	  </div>
+	  <div><a href="{{ add }}" class="btn btn-primary"><i class="fas fa-plus"></i><span class="ms-2">{{ button_add }}</span></a></div>
+	</div>
+	<div class="d-block d-md-none mt-3 position-relative">
+	  <div id="search-m" class="form-outline">
+		<input type="text" name="search-m" value="{{ search }}" class="form-control" />
+		<label class="form-label">{{ text_search }}</label>
+	  </div>
+	  <button type="button" id="btn-search-m" class="btn btn-outline-primary fs-7 border-0 position-absolute ps-3 pe-3 h-100" style="top: 0; right: 0;" data-mdb-color="dark"><i class="fas fa-search"></i></button>
+	</div>
+	{% if vehicles4parts %}
+	  {% for vehicle4parts in vehicles4parts %}
+	  <div class="card shadow-3 mt-3">
+		<div class="card-body row align-items-center">
+			<div class="d-none d-lg-flex col-lg-11 align-items-center">
+			  <img src="{{ vehicle4parts.image_min }}" alt="{{ vehicle4parts.title }}" href="{{ vehicle4parts.image }}" style="min-width: 75px;" class="img-thumbnail vehicle4parts-image me-4" />
+			  <a href="{{ vehicle4parts.label_url }}" class="me-4"><img src="{{ server }}view/img/qr.png" style="min-width: 75px;" class="img-thumbnail" /></a>
+			  <div class="me-4">{{ vehicle4parts.sku }}</div>
+			  <a href="{{ vehicle4parts.edit }}">{{ vehicle4parts.title }}</a>
+			</div>
+			<div class="d-none d-lg-flex col-lg-1 text-end">
+			  <div class="dropdown">
+				<button	class="btn btn-primary"	type="button" id="{{ vehicle4parts.sku }}dropdownMenuButton" data-mdb-toggle="dropdown" aria-expanded="false"><i class="fas fa-bars"></i></button>
+				<ul id="{{ vehicle4parts.sku }}menu" class="dropdown-menu" aria-labelledby="{{ vehicle4parts.sku }}dropdownMenuButton">
+				  <li><a class="dropdown-item" href="{{ vehicle4parts.add_product }}"><i class="fas fa-plus me-2"></i>{{ button_add_product }}</a></li>
+				  <li><a class="dropdown-item" href="{{ vehicle4parts.edit }}"><i class="fas fa-pencil-alt me-2"></i>{{ button_edit }}</a></li>
+				  <li><a class="dropdown-item" href="{{ vehicle4parts.list_products }}"><i class="fas fa-list me-2"></i>{{ button_list_products }}</a></li>
+				  <li><a class="dropdown-item text-danger" href="{{ vehicle4parts.delete }}"><i class="fas fa-trash me-2"></i>{{ button_delete }}</a></li>
+				  <li><button data-sku="{{ vehicle4parts.sku }}" class="dropdown-item btn-upload-file"><i class="fas fa-file-upload me-2"></i>{{ button_upload }}</button></li>
+				  {% for file in vehicle4parts.files %}
+				  <li class="dropdown-item d-flex align-items-center justify-content-between"><a target="blank" href="{{ dir_upload }}{{ file.file }}">{{ file.title }}</a><i class="close fas fa-times fs-6 float-end" onclick="deleteFile('{{ vehicle4parts.sku }}', '{{ file.vehicle4parts_file_id }}'); this.parentNode.remove();"></i></li>
+				  {% endfor %}
+				</ul>
+			  </div>
+			</div>
+			<div class="d-flex d-lg-none col-lg-12 align-items-center mb-3">
+			  <div><img src="{{ vehicle4parts.image_min }}" alt="{{ vehicle4parts.title }}" href="{{ vehicle4parts.image }}" style="min-width: 75px;" class="img-thumbnail vehicle4parts-image me-4" /></div>
+			  <div class="flex-fill d-flex flex-column">
+				<a href="{{ vehicle4parts.edit }}" class="fs-7" style="min-height: 30px;"><span class="text-dark me-3">{{ vehicle4parts.sku }}</span>{{ vehicle4parts.title_min }}</a>
+				<div>
+				  <a class="btn btn-primary btn-floating me-1 mt-2" href="{{ vehicle4parts.add_product }}"><i class="fas fa-plus"></i></a>
+				  <a class="btn btn-primary btn-floating me-1 mt-2" href="{{ vehicle4parts.edit }}"><i class="fas fa-pencil-alt"></i></a>
+				  <a class="btn btn-primary btn-floating me-1 mt-2" href="{{ vehicle4parts.list_products }}"><i class="fas fa-list"></i></a>
+				  <a class="btn btn-danger btn-floating me-1 mt-2" href="{{ vehicle4parts.delete }}"><i class="fas fa-trash"></i></a>
+				</div>
+			  </div>			  
+			</div>
+		</div>
+	  </div>
+	  {% endfor %}
+	{% endif %}
+	<div class="row mt-3 mb-3">
+	  <div class="col-sm-6 text-start">{{ pagination }}</div>
+	  <div class="col-sm-6 text-end">{{ results }}</div>
+	</div>
+</div>
+</main>
+<input type="file" id="selectfile" class="d-none" />
+<script>
+$(document).ready(function() {
+  $('.vehicle4parts-image').magnificPopup({
+	type:'image',
+	gallery: {
+		enabled: false
+	}
+  });
+});
+
+$('.btn-upload-file').on('click', function(e) {
+  let sku = e.currentTarget.attributes['data-sku'].value;
+
+  document.getElementById('selectfile').click();
+  document.getElementById('selectfile').onchange = function() {
+	file = document.getElementById('selectfile').files[0];
+	uploadFile(sku, file);
+  };
+});
+
+function uploadFile(sku, file) {
+  loading();
+
+  let formData = new FormData();
+  formData.append('file', file);
+
+  $.ajax({
+	type: 'POST',
+	url: '{{ server }}index.php?route=catalog/vehicle4parts.uploadFile&user_token={{ user_token }}&sku=' + encodeURIComponent(sku),
+	contentType: false,
+	processData: false,
+	data: formData,
+	success:function(response) {
+	  $('#selectfile').val('');
+	  
+	  if(response.error !== undefined) {
+		addAlert('{{ text_error }}', response.error, 'danger');
+		return;
+	  }
+	  
+	  $('#'+sku+'menu').append('<li class="dropdown-item d-flex align-items-center justify-content-between"><a target="blank" href="'+response['path']+'">'+response['title']+'</a><i class="close fas fa-times fs-6 float-end" onclick="deleteFile('+"'"+sku+"'"+', '+"'"+response['id']+"'"+'); this.parentNode.remove();"></i></li>');
+	  
+	  addAlert('{{ text_success }}', '{{ text_file_uploaded }}', 'success', 5000);
+	}
+  }).then(function() {
+	loading(false);
+  });
+}
+
+function deleteFile(sku, file_id) {
+  $.ajax({
+	url: '{{ server }}index.php?route=catalog/vehicle4parts.deleteFile&user_token={{ user_token }}&file_id=' + encodeURIComponent(file_id) + '&sku=' + encodeURIComponent(sku),
+	success:function(response) {
+	  addAlert('{{ text_success }}', '{{ text_file_deleted }}', 'success', 5000);
+	}
+  });
+}
+
+$('#select-warehouse_id').change(function() {
+	let url = '';
+
+	let warehouseId = $('#select-warehouse_id').val();
+
+	if (warehouseId) {
+		url += '&warehouse_id=' + encodeURIComponent(warehouseId);
+	}
+	
+	location = '{{ server }}index.php?route=catalog/vehicle4parts&user_token={{ user_token }}' + url;
+});
+
+$('#btn-search').on('click', function() {
+	let url = '';
+
+	let search = $('input[name=\'search\']').val();
+
+	if (search) {
+		url += '&search=' + encodeURIComponent(search);
+	}
+	
+	let warehouseId = $('#select-warehouse_id').val();
+
+	if (warehouseId) {
+		url += '&warehouse_id=' + encodeURIComponent(warehouseId);
+	}
+	
+	location = '{{ server }}index.php?route=catalog/vehicle4parts&user_token={{ user_token }}' + url;
+});
+
+$('#btn-search-m').on('click', function() {
+	let url = '';
+
+	let search = $('input[name=\'search-m\']').val();
+
+	if (search) {
+		url += '&search=' + encodeURIComponent(search);
+	}
+	
+	let warehouseId = $('#select-warehouse_id').val();
+
+	if (warehouseId) {
+		url += '&warehouse_id=' + encodeURIComponent(warehouseId);
+	}
+	
+	location = '{{ server }}index.php?route=catalog/vehicle4parts&user_token={{ user_token }}' + url;
+});
+
+$('input[name=\'search\']').keydown(function(e) {
+	if(e.keyCode == 13) {
+		$('#btn-search').trigger('click');
+	}
+});
+
+$('input[name=\'search-m\']').keydown(function(e) {
+	if(e.keyCode == 13) {
+		$('#btn-search-m').trigger('click');
+	}
+});
+
+function filter() {
+  let url = '';
+	
+  let filterBrand = $('select[name=\'filter_vehicle_brand\']').val();
+
+  if (filterBrand != '0') {
+	url += '&filter_vehicle_brand=' + encodeURIComponent(filterBrand);
+  }
+
+  let filterModel = $('select[name=\'filter_vehicle_model\']').val();
+
+  if (filterBrand != '0' && filterModel != '0') {
+	url += '&filter_vehicle_model=' + encodeURIComponent(filterModel);
+  }
+	
+  let filterEngine = $('select[name=\'filter_vehicle_engine\']').val();
+
+  if (filterBrand != '0' && filterModel != '0' && filterEngine != '0') {
+	url += '&filter_vehicle_engine=' + encodeURIComponent(filterEngine);
+  }
+  
+  let warehouseId = $('#select-warehouse_id').val();
+
+  if (warehouseId != '0') {
+	url += '&warehouse_id=' + encodeURIComponent(warehouseId);
+  }
+  
+  let sort = '{{ sort }}';
+  
+  if (sort) {
+	url += '&sort=' + encodeURIComponent(sort);
+  }
+  
+  let order = '{{ order }}';
+  
+  if (order) {
+	url += '&order=' + encodeURIComponent(order);
+  }
+	
+  location = '{{ product }}' + url;
+}
+</script> 
+{{ footer }} 

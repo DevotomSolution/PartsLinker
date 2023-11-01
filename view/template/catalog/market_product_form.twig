@@ -1,0 +1,1074 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-3">
+<div class="container-fluid">
+  {% if error_warning %}
+  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+    <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+	<form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-product" class="form-horizontal">
+		<div class="row">
+			<ul class="nav nav-tabs flex-nowrap mb-3 ms-3" id="tabs" role="tablist">
+			  <li class="nav-item" role="presentation">
+				<a
+				  class="nav-link {% if edit != 1 %}active{% endif %}"
+				  id="tabs-tab-preview"
+				  data-mdb-toggle="tab"
+				  href="#tabs-tabs-preview"
+				  role="tab"
+				  aria-controls="tabs-tabs-preview"
+				  aria-selected="{% if edit != 1 %}true{% else %}false{% endif %}"
+				  >{{ tab_preview }}</a
+				>
+			  </li>
+			  <li class="nav-item" role="presentation">
+				<a
+				  class="nav-link {% if edit %}active{% endif %}"
+				  id="tabs-tab-edit"
+				  data-mdb-toggle="tab"
+				  href="#tabs-tabs-edit"
+				  role="tab"
+				  aria-controls="tabs-tabs-edit"
+				  aria-selected="{% if edit %}true{% else %}false{% endif %}"
+				  >{{ tab_edit }}</a
+				>
+			  </li>
+			  <li class="nav-item" role="presentation">
+				<a
+				  class="nav-link"
+				  id="tabs-tab-onlineshops"
+				  data-mdb-toggle="tab"
+				  href="#tabs-tabs-onlineshops"
+				  role="tab"
+				  aria-controls="tabs-tabs-onlineshops"
+				  aria-selected="false"
+				  >{{ tab_onlineshops }}</a
+				>
+			  </li>
+			</ul>
+			<div class="tab-content" id="tabs-content">
+			  <div class="tab-pane fade {% if edit != 1 %}show active{% endif %}" id="tabs-tabs-preview" role="tabpanel" aria-labelledby="tabs-tab-preview">
+				<div class="dropzone border d-flex flex-column justify-content-center rounded" ondrop="fileDrop(event);" ondragover="return false">
+					<div class="dropmsg bg-dark bg-opacity-50 text-white"></div>
+					<div id="dropzone-images" class="w-100 dropzone-body">
+					  {% for image in product_image %}
+						<div class="m-2 dropzone-image" href="{{ image.path }}" style="background-image: url({{ image.path }})"><i class="fas fa-fast-backward p-1"></i><i class="fa fa-minus-circle p-1"></i><input type="hidden" name="product_image[{{ image.image }}]" value="{{ image.image }}" /></div>
+					  {% endfor %}
+						<div class="m-2 add-dropzone-image" onclick="fileExplorer();" style="background-image: url({{ server }}view/img/photo-plus.png)"></div>
+					</div>
+					<input type="file" multiple accept="image/png,image/jpeg,image/jpg" id="selectfile">
+				</div>
+				<ul class="nav nav-pills mb-3 mt-3" id="description" role="tablist">
+				  {% for language in languages %}
+				  <li class="nav-item" role="presentation">
+					<a
+					  class="nav-link me-0 {% if language.language_id == user_language %}active{% endif %}"
+					  id="description-tab-{{ language.language_id }}"
+					  data-mdb-toggle="pill"
+					  href="#description-pills-{{ language.language_id }}"
+					  role="tab"
+					  aria-controls="description-pills-{{ language.language_id }}"
+					  aria-selected="true"
+					  ><img src="{{ server }}language/{{ language.code }}/{{ language.code }}.png" alt="{{ language.name }}" title="{{ language.name }}" /></a
+					>
+				  </li>
+				  {% endfor %}
+				</ul>
+				<div class="tab-content" id="description-content">
+				  {% for language in languages %}
+				  <div class="tab-pane fade {% if language.language_id == user_language %}show active{% endif %}" id="description-pills-{{ language.language_id }}" role="tabpanel" aria-labelledby="description-tab-{{ language.language_id }}">
+					<div class="form-outline">
+					  <input type="text" id="input-product_description-name-{{ language.language_id }}" name="product_description[{{ language.language_id }}][name]" value="{{ product_description[language.language_id].name }}" class="form-control"/>
+					  <label class="form-label" for="input-product_description-name-{{ language.language_id }}">{{ entry_name }}</label>
+					</div>
+					<div class="mt-3">
+					  <textarea id="input-product_description-description-{{ language.language_id }}" name="product_description[{{ language.language_id }}][description]">{{ product_description[language.language_id].description }}</textarea>
+					</div>
+				  </div>
+				  <input type="hidden" id="input-product_description-note-{{ language.language_id }}" name="product_description[{{ language.language_id }}][note]" value='{{ product_description[language.language_id].note }}'/>
+				  {% endfor %}
+				</div>
+				<div class="row">
+				  <div class="col-sm-4 col-12 mt-3">
+					<div class="form-outline">
+					  <input type="number" id="input-price" name="price" max="9999999" min="0" step="0.01" value="{{ price }}" class="form-control" />
+					  <label class="form-label" for="input-price">{{ entry_price }}</label>
+					</div>
+				  </div>
+				  <div class="col-sm-4 col-12 mt-3">
+					<select class="select" id="select-used" name="used">
+						<option value="1" {% if used == '1' %}selected{% endif %}>{{ text_used }}</option>
+						<option value="0" {% if used == '0' %}selected{% endif %}>{{ text_new }}</option>
+					</select>
+					<label class="form-label select-label">{{ select_quality }}</label>
+				  </div>
+				  <div class="col-sm-4 col-12 mt-3">
+					<div class="form-outline">
+					  <input type="number" id="input-quantity" name="quantity" value="{{ quantity }}" max="9999" class="form-control" />
+					  <label class="form-label" for="input-quantity">{{ entry_quantity }}</label>
+					</div>
+				  </div>
+				</div>
+				<div class="text-start mb-3 mt-2 pb-1">
+				  <button type="submit" form="form-product" class="btn btn-primary mt-1" style="min-width: 150px;"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+				  <a href="{{ cancel }}" class="btn btn-default mt-1"><i class="fa fa-reply me-2"></i>{{ button_cancel }}</a>
+				</div>
+			  </div>
+			  <div class="tab-pane fade {% if edit %}show active{% endif %}" id="tabs-tabs-edit" role="tabpanel" aria-labelledby="tabs-tab-edit">
+			    <div class="input-group input-group-lg mb-3 justify-content-end">
+				  <span class="input-group-text text-warning fs-4 border-0" style="color:#386bc0!important;">{{ text_sku }}</span>
+				  <input type="text" class="form-control fs-4 text-warning" id="input-sku" maxlength="10" name="sku" style="max-width: 175px;color:#386bc0!important" placeholder="{{ placeholder_sku }}" value="{{ sku }}" {% if new_product == 0 %}readonly{% endif %}/>
+				</div>
+				<div class="dropzone border d-flex flex-column justify-content-center rounded" ondrop="fileDrop(event);" ondragover="return false">
+					<div class="dropmsg bg-dark bg-opacity-50 text-white"></div>
+					<div id="dropzone-images-edit" class="w-100 dropzone-body">
+					  {% for image in product_image %}
+						<div class="m-2 dropzone-image" href="{{ image.path }}" style="background-image: url({{ image.path }})"><i class="fas fa-fast-backward p-1"></i><i class="fa fa-minus-circle p-1"></i><input type="hidden" name="product_image[{{ image.image }}]" value="{{ image.image }}" /></div>
+					  {% endfor %}
+						<div class="m-2 add-dropzone-image" onclick="fileExplorer();" style="background-image: url({{ server }}view/img/photo-plus.png)"></div>
+					</div>
+				</div>
+				<div class="row align-items-end">
+				  <div class="col-12 col-md-8 mt-3">
+					<ul class="nav nav-pills" id="name_product" role="tablist">
+					  {% for language in languages %}
+					  <li class="nav-item" role="presentation">
+						<a
+						  class="nav-link me-0 {% if language.language_id == user_language %}active{% endif %}"
+						  id="name_product-tab-{{ language.language_id }}"
+						  data-mdb-toggle="pill"
+						  href="#name_product-pills-{{ language.language_id }}"
+						  role="tab"
+						  aria-controls="name_product-pills-{{ language.language_id }}"
+						  aria-selected="true"
+						  ><img src="{{ server }}language/{{ language.code }}/{{ language.code }}.png" alt="{{ language.name }}" title="{{ language.name }}" /></a
+						>
+					  </li>
+					  {% endfor %}
+					</ul>
+					<div class="tab-content" id="name_product-content">
+					  {% for language in languages %}
+					  <div class="tab-pane fade {% if language.language_id == user_language %}show active{% endif %}" id="name_product-pills-{{ language.language_id }}" role="tabpanel" aria-labelledby="name_product-tab-{{ language.language_id }}">
+					    <div class="d-flex">
+						  <div id="name_product-{{ language.language_id }}" class="form-outline">
+							<input type="text" id="input-name_product-{{ language.language_id }}" name="product_description[{{ language.language_id }}][name_product]" value="{{ product_description[language.language_id].name_product }}" class="form-control" />
+							<label class="form-label">{{ entry_name }}</label>
+						  </div>
+						  {% if language.language_id == user_language %}
+						  <div id="name_product-translate" class="ms-2 d-none"><button type="button" data-mdb-toggle="tooltip" title="{{ button_translate }}" id="btn-translate-name_product" class="btn btn-primary"><i class="fa fa-globe"></i></button></div>
+						  {% endif %}
+						</div>
+					  </div>
+					  {% endfor %}
+					  <input type="hidden" id="input-category_id" name="product_category" value="{{ category_id }}"/>
+					</div>
+					<div class="d-md-none"><small id="msg-category-sm" class="text-primary">{% if category_id %}{{ text_category_detected }}: {{ category_path }}{% else %}{{ text_category_not_detected }}{% endif %}</small></div>
+				  </div>
+				  <div class="col-12 col-md-4 mt-2 mt-mb-3">
+					<select class="select" id="select-vehicle_position_id" name="vehicle_position_id" class="form-control">
+					  <option value=""></option>
+					  {% for position in vehicle_positions %}
+						<option value="{{ position.vehicle_position_id }}" {% if position.vehicle_position_id == vehicle_position_id %} selected{% endif %}>{{ position.text }}</option>
+					  {% endfor %}
+					</select>
+					<label class="form-label select-label">{{ select_vehicle_position }}</label>
+				  </div>
+				</div>
+				<div class="d-none d-md-block"><small id="msg-category-md" class="text-primary">{% if category_id %}{{ text_category_detected }}: {{ category_path }}{% else %}{{ text_category_not_detected }}{% endif %}</small></div>
+				<div id="product-vehicle4parts">
+				  {% for vehicle4parts in product_vehicle4parts %}
+				  <input id="vehicle4parts{{ vehicle4parts.sku }}" type="hidden" name="product_vehicle4parts[]" value="{{ vehicle4parts.sku }}"/>
+				  {% endfor %}
+				</div>
+				<div class="row">
+				  <div class="col-12 col-md-8 mt-3 mt-md-2">
+					<div id="vehicle" class="form-outline">
+					  <input type="text" id="input-vehicle" data-vehicle-id="0" data-vehicle-name="" name="vehicle" value="" class="form-control" />
+					  <label class="form-label" id="label-input-vehicle" for="input-vehicle">{{ entry_vehicle }}</label>
+					</div>
+				  </div>
+				  <div class="col-12 col-md-4 mt-3 mt-md-2">
+					<select data-mdb-filter="true" id="select-vehicle_engine" name="vehicle_engine" class="form-control">
+					  <option value="">{{ option_all_engines }}</option>
+					  {% for engine in vehicle_engines %}
+						<option value="{{ engine.id }}">{{ engine.name }}</option>
+					  {% endfor %}
+					</select>
+					<label class="form-label select-label">{{ select_vehicle_engine }}</label>
+				  </div>
+				  <div id="product-vehicle" class="d-flex flex-wrap">
+					{% for vehicle in product_vehicle %}
+					<div id="product-vehicle{{ vehicle.vehicle_id }}" class="chip text-nowrap mt-3"><span>{{ vehicle.title }}{% if vehicle.engine %} {{ vehicle.engine.name }}{% endif %}</span><i class="close fas fa-times"></i><input type="hidden" name="product_vehicle[]" value="{{ vehicle.vehicle_id }}"/>{% if vehicle.engine %}<input type="hidden" name="product_vehicle_engine[{{ vehicle.vehicle_id }}]" value="{{ vehicle.engine.id }}"/>{% endif %}</div>
+					{% endfor %}
+				  </div>
+				</div>
+				<div class="form-outline mt-3">
+				  <input type="text" id="input-oe" name="oe" value="{{ oe }}" class="form-control" />
+				  <label class="form-label" for="input-oe">{{ entry_oe }}</label>
+				</div>
+				<div id="brand" class="form-outline mt-3">
+				  <input type="text" id="input-brand" name="brand" value="{{ brand }}" class="form-control" />
+				  <label class="form-label" for="input-brand">{{ entry_manufacturer }}</label>
+				</div>
+				<div class="form-outline mt-3">
+				  <input type="text" id="input-mpn" name="mpn" value="{{ mpn }}" class="form-control" />
+				  <label class="form-label" for="input-mpn">{{ entry_mpn }}</label>
+				</div>
+				<div class="form-outline mt-3">
+				  <input type="text" id="input-ean" name="ean" value="{{ ean }}" class="form-control" />
+				  <label class="form-label" for="input-ean">{{ entry_ean }}</label>
+				</div>
+				<div class="form-outline mt-3">
+				  <input type="text" id="input-others" name="others" value="{{ others }}" class="form-control" />
+				  <label class="form-label" for="input-others">{{ entry_others }}</label>
+				</div>
+				<div class="form-outline mt-3">
+				  <input type="number" id="input-weight" name="weight" step="0.001" value="{{ weight }}" class="form-control" />
+				  <label class="form-label" for="input-weight">{{ entry_weight }}</label>
+				</div>
+				<div class="mt-3">
+				  <select class="select" name="used-edit">
+					<option value="1" {% if used == '1' %}selected{% endif %}>{{ text_used }}</option>
+					<option value="0" {% if used == '0' %}selected{% endif %}>{{ text_new }}</option>
+				  </select>
+				  <label class="form-label select-label">{{ select_quality }}</label>
+				</div>
+				<div class="mt-3">
+				  <select class="select" name="warehouse_id">
+					<option value=""></option>
+					{% for warehouse in warehouses %}
+					<option value="{{ warehouse.warehouse_id }}" {% if warehouse.warehouse_id == warehouse_id %}selected{% endif %}>{{ warehouse.name }}</option>
+					{% endfor %}
+				  </select>
+				  <label class="form-label select-label">{{ select_warehouse }}</label>
+				</div>
+				<div class="form-outline mt-3">
+				  <input type="text" name="location" value="{{ location }}" class="form-control" />
+				  <label class="form-label">{{ entry_location }}</label>
+				</div>
+				<div class="mt-3 d-flex">
+					<div class="form-outline flex-fill">
+					  <input type="number" id="input-quantity-edit" name="quantity-edit" value="{{ quantity }}" max="9999" class="form-control" />
+					  <label class="form-label" for="input-quantity-edit">{{ entry_quantity }}</label>
+					</div>
+					<div class="form-outline flex-fill ms-3">
+					  <input type="number" id="input-price-edit" name="price-edit" max="9999999" min="0" step="0.01" value="{{ price }}" class="form-control" />
+					  <label class="form-label" for="input-price-edit">{{ entry_price }}</label>
+					</div>
+				</div>
+				<div id="note" class="mt-3">
+				  <textarea id="input-note" name="note">{{ note }}</textarea>
+				  <div class="text-end">
+					<button type="button" id="btn-translate" class="btn btn-primary d-none mt-2"><i class="fa fa-globe me-2"></i>{{ button_translate }}</button>
+				  </div>
+				</div>
+				<div class="text-start mt-2 pb-1 mb-3">
+				  <button type="submit" form="form-product" class="btn btn-primary mt-1" style="min-width: 150px;"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+				  <a href="{{ cancel }}" class="btn btn-default mt-1"><i class="fa fa-reply me-2"></i>{{ button_cancel }}</a>
+				</div>
+			  </div>
+			  <div class="tab-pane fade" id="tabs-tabs-onlineshops" role="tabpanel" aria-labelledby="tabs-tab-onlineshops">
+			    <table class="table table-hover table-bordered">
+				  <tbody>
+					{% for onlineshop in onlineshops %}
+					<tr>
+					  <td>{{ onlineshop.title }}</td>
+					  <td><input class="form-check-input" type="checkbox" name="{{ onlineshop.code }}" value="1" {% if onlineshop.status %}checked{% endif %} {% if onlineshop.always_on %}disabled{% endif %}/></td>
+					</tr>
+					{% endfor %}
+				  </tbody>
+			    </table>
+				<div class="text-start mt-3 mb-3">
+				  <button type="submit" form="form-product" class="btn btn-primary" style="min-width: 150px;"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+				  <a href="{{ cancel }}" class="btn btn-default"><i class="fa fa-reply me-2"></i>{{ button_cancel }}</a>
+				</div>
+			  </div>
+			</div>
+		</div>
+	</form>
+</div>
+</main>
+<script>
+let vehiclePositionsTranslates = JSON.parse('{{ vehicle_positions_translates }}');
+
+$(document).ready(function() {
+  const nameProductAutocomplete = document.querySelector('#name_product-{{ user_language }}');
+
+  const nameProductFilter = async (query) => {
+	const url = `{{ server }}index.php?route=catalog/product.autocompleteCategory&user_token={{ user_token }}&search=${encodeURI(query)}`;
+	const response = await fetch(url);
+	const data = await response.json();
+	return data.categories;
+  };
+  
+  new mdb.Autocomplete(nameProductAutocomplete, {
+	filter: nameProductFilter,
+	noResults: '',
+	threshold: 1,
+	displayValue: (value) => value.name
+  });
+  
+  $('#name_product-{{ user_language }}').on('close.mdb.autocomplete', async function() {
+    const url = `{{ server }}index.php?route=catalog/product.getCategoryByText&user_token={{ user_token }}&text=${encodeURI($('#input-name_product-{{ user_language }}').val())}`;
+	const response = await fetch(url);
+	const data = await response.json();
+	
+	$('#name_product-translate').addClass('d-none');
+	
+	if (data.category !== undefined) {
+      $('#input-category_id').val(data.category.category_id);
+
+	  {% for language in languages %}
+	    {% if language.language_id != user_language %}
+		  $('#input-name_product-{{ language.language_id }}').val(data.category.translates[{{ language.language_id }}]);
+	    {% endif %}
+	  {% endfor %}
+	  
+	  $('#msg-category-sm').html('{{ text_category_detected }}: ' + data.category.path);
+	  $('#msg-category-md').html('{{ text_category_detected }}: ' + data.category.path);
+	  
+	  if ($('#input-name_product-{{ user_language }}').val() !== data.category.name) {
+	    $('#name_product-translate').removeClass('d-none');
+	  }
+	} else {
+	  $('#input-category_id').val(0);
+	  
+	  $('#msg-category-sm').html('{{ text_category_not_detected }}');
+	  $('#msg-category-md').html('{{ text_category_not_detected }}');
+	  
+	  $('#name_product-translate').removeClass('d-none');
+	}
+	
+	generateProductDescriptionName();
+	generateProductDescription;
+  });
+  
+  const brandAutocomplete = document.querySelector('#brand');
+  
+  const brandFilter = async (query) => {
+	const url = `{{ server }}index.php?route=catalog/product.autocompleteBrand&user_token={{ user_token }}&search=${encodeURI(query)}`;
+	const response = await fetch(url);
+	const data = await response.json();
+	return data.brands;
+  };
+
+  new mdb.Autocomplete(brandAutocomplete, {
+	filter: brandFilter,
+	noResults: '',
+	threshold: 1,
+	displayValue: (value) => value.name
+  });
+  
+  $('#input-brand').focusout(function(e) {
+	generateProductDescriptionName();
+	generateProductDescription();
+  });
+  
+  const vehicleAutocomplete = document.querySelector('#vehicle');
+  
+  const vehicleFilter = async (query) => {
+	const url = `{{ server }}index.php?route=catalog/product.autocompleteVehicle&user_token={{ user_token }}&search=${encodeURI(query)}`;
+	const response = await fetch(url);
+	const data = await response.json();
+	return data.vehicles;
+  };
+
+  new mdb.Autocomplete(vehicleAutocomplete, {
+	filter: vehicleFilter,
+	noResults: '',
+	threshold: 1,
+	displayValue: (value) => value.name
+  });
+  
+  const engineSelect = new mdb.Select(document.getElementById('select-vehicle_engine'));
+  
+  $('#select-vehicle_engine').on('close.mdb.select', function(e) {
+	let vehicleId = $('#input-vehicle').attr('data-vehicle-id');
+	
+	if (vehicleId == '0') {
+	  return;
+	}
+	
+	let vehicleTitle = $('#input-vehicle').attr('data-vehicle-name');
+
+	let engineId = $('select[name=\'vehicle_engine\']').val();
+	let engineTitle = '';
+  
+	if(engineId != '') {
+	  engineTitle = $('select[name=\'vehicle_engine\'] option[value="' + engineId + '"]').html();
+	}
+  
+	let warehouseId = $('select[name=\'warehouse_id\']').val();
+	
+	if(engineId != '') {
+	  addVehicle(vehicleId, vehicleTitle, warehouseId, engineId, engineTitle).then(function() {
+		generateProductDescriptionName();
+		generateProductDescription();
+	  });
+	} else {
+		addVehicle(vehicleId, vehicleTitle, warehouseId).then(function() {
+		  generateProductDescriptionName();
+		  generateProductDescription();
+		});
+	}
+	
+	$('#input-vehicle').val('');
+
+    $('#input-vehicle').attr('data-vehicle-id', 0);
+    $('#input-vehicle').attr('data-vehicle-name', '');
+	
+	$('select[name=\'vehicle_engine\'] option[value!=""]').remove();
+	$('#label-input-vehicle').removeClass('active');
+  });
+
+  $('#vehicle').on('itemSelect.mdb.autocomplete', function(e) {
+    $('#input-vehicle').attr('data-vehicle-id', e.value.id);
+    $('#input-vehicle').attr('data-vehicle-name', e.value.name);
+	
+	$.ajax({
+	  url: '{{ server }}index.php?route=catalog/product.getEngines&user_token={{ user_token }}&model_id=' + encodeURIComponent(e.value.model_id),
+	  dataType: 'json',
+	  success: function(json) {
+		$('select[name=\'vehicle_engine\'] option[value!=""]').remove();
+
+		$.each(json, function (i, item) {
+		  $('select[name=\'vehicle_engine\']').append($('<option>', { 
+			value: item.id,
+			text : item.name
+		  }));
+		});
+		
+		engineSelect.open();
+	  }
+	});
+  });
+  
+  magnificPopupInit();
+  dropRefresh();
+  
+  {% for language in languages %}
+  $('#input-product_description-description-{{ language.language_id }}').summernote({
+	height: 300,
+	toolbar: false,
+	disableDragAndDrop: true,
+	tabDisable: true,
+	placeholder: '{{ entry_description }}',
+	callbacks: {
+	  onPaste: function(e) {
+		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+		e.preventDefault();
+		setTimeout( function(){
+		  document.execCommand( 'insertText', false, bufferText );
+		}, 10 );
+	  }
+	}
+  });
+  {% endfor %}
+  
+  $('#input-note').summernote({
+	height: 250,
+	toolbar: false,
+	disableDragAndDrop: true,
+	tabDisable: true,
+	placeholder: '{{ entry_note }}',
+	callbacks: {
+	  onPaste: function(e) {
+		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+		e.preventDefault();
+		setTimeout( function(){
+		  document.execCommand( 'insertText', false, bufferText );
+		}, 10 );
+	  }
+	}
+  });
+  
+  $('#note').addVoiceTrigger(function(msg) {
+	$('#input-note').summernote('insertText', msg);
+  });
+  
+  if($('#input-product_description-description-{{ user_language }}').val() == '') {
+	generateProductDescriptionName();
+	generateProductDescription();
+  }
+});
+
+$('#input-sku').change(function(event) {
+  if(event.target.value.length < 5 || event.target.value.length > 8) {
+	event.target.classList.remove('text-warning');
+	event.target.classList.add('text-danger');
+	event.target.focus();
+  } else {
+	event.target.classList.remove('text-danger');
+	event.target.classList.add('text-warning');
+  }
+  
+  generateProductDescription();
+});
+
+{% if new_product == 1 %}
+$('select[name=\'warehouse_id\']').change(function(e) {
+  $.ajax({
+	url: '{{ server }}index.php?route=catalog/product.getNewSku&user_token={{ user_token }}&warehouse_id=' + encodeURIComponent(e.target.value),
+	dataType: 'json',
+	success: function(json) {
+	  if (json['sku'] !== undefined) {
+	    $('#input-sku').val(json['sku']);
+	  }
+	}
+  });
+});
+{% endif %}
+
+$('select[name=\'used\']').change(function(event) {
+  $('select[name=\'used-edit\']').val(event.target.value);
+  generateProductDescription();
+});
+
+$('select[name=\'used-edit\']').change(function(event) {
+  $('select[name=\'used\']').val(event.target.value);
+  generateProductDescription();
+});
+
+$('#input-quantity').change(function(event) {
+  $('#input-quantity-edit').val(event.target.value);
+});
+
+$('#input-quantity-edit').change(function(event) {
+  $('#input-quantity').val(event.target.value);
+});
+
+$('#input-price').change(function(event) {
+	$('#input-price-edit').val(event.target.value);
+});
+
+$('#input-price-edit').change(function(event) {
+  $('#input-price').val(event.target.value);
+});
+
+$('#input-note').on('summernote.blur', function() {
+  noteMain = $('#input-note').summernote('code');
+  
+  {% for language in languages %}
+	$('#input-product_description-note-{{ language.language_id }}').val(noteMain);
+  {% endfor %}
+
+  generateProductDescription();
+  $('#btn-translate').removeClass('d-none');
+});
+
+$('#select-vehicle_position_id').change(function() {
+  generateProductDescriptionName();
+});
+
+$('#input-mpn').change(function() {
+  generateProductDescriptionName();
+  generateProductDescription();
+});
+
+$('#input-ean').change(function(event) {
+  generateProductDescription()
+});
+
+$('#input-oe').change(function(event) {
+  generateProductDescriptionName();
+  generateProductDescription();
+});
+
+$('#input-others').change(function(event) {
+  generateProductDescription();
+});
+
+//
+// FILE DROP
+//
+
+let files;
+let countImages = $('#dropzone-images .dropzone-image').length;
+
+function fileDrop(e) {
+  e.preventDefault();
+  let files = e.dataTransfer.files;
+  
+  for(let i = 0; i < files.length; i++) {
+	if(files[i].type.match(/image.*/)) {
+	  countImages++;
+	  
+	  if(countImages <= 8) {
+		uploadImage(files[i]);
+	  }
+	}
+  }
+}
+
+function fileExplorer() {
+  document.getElementById('selectfile').click();
+  document.getElementById('selectfile').onchange = function() {
+	files = document.getElementById('selectfile').files;
+	
+	for(let i = 0; i < files.length; i++) {
+	  if(files[i].type.match(/image.*/)) {
+		countImages++;
+	
+		if(countImages <= 8) {
+		  uploadImage(files[i]);
+		}
+	  }
+	}
+  };
+}
+
+function dropRefresh() {
+  if(countImages >= 8) {
+	$('.add-dropzone-image').addClass('hide');
+  } else {
+	$('.add-dropzone-image').removeClass('hide');
+  }
+}
+
+async function uploadImage(file) {
+  if (file.type.match(/image.*/)) {
+	$('.dropmsg').html('<div class="spinner-border" role="status"><span class="visually-hidden">{{ text_loading }}</span></div>');
+	$('.dropmsg').addClass('d-flex');
+	
+	imgFile = await imageResize(file, '{{ MAX_IMAGE_WIDTH }}', '{{ MAX_IMAGE_HEIGHT }}');
+	
+	let formData = new FormData();
+	formData.append('file', imgFile);
+
+	$.ajax({
+	  type: 'POST',
+	  url: '{{ server }}index.php?route=catalog/product.uploadImage&user_token={{ user_token }}',
+	  contentType: false,
+	  processData: false,
+	  data: formData,
+	  success:function(response) {
+		if(response.error !== undefined) {
+		  addAlert('{{ text_error }}', response.error, 'danger');
+		  return;
+		}
+
+		$('#selectfile').val('');
+		
+		$('.add-dropzone-image').before('<div class="m-2 dropzone-image" href="' + response['path'] + '" style="background-image: url(' + response['path'] + ')"><i class="fas fa-fast-backward p-1"></i><i class="fa fa-minus-circle p-1"></i><input type="hidden" name="product_image[' + response['image'] + ']" value="' + response['image'] + '" /></div>');
+		$('#dropzone-images-edit').html($('#dropzone-images').html());
+		dropRefresh();
+		magnificPopupInit();
+	  }
+	});
+  }
+}
+
+$('#dropzone-images').delegate('.fa-minus-circle', 'click', function() {
+  $.magnificPopup.close();
+  $(this).parent().remove();
+  $('#dropzone-images-edit').html($('#dropzone-images').html());
+  countImages = $('#dropzone-images .dropzone-image').length;
+  dropRefresh();
+  magnificPopupInit();
+});
+
+$('#dropzone-images').delegate('.fa-fast-backward', 'click', function() {
+  $.magnificPopup.close();
+  let element = $(this).parent();
+  $(this).parent().remove();
+  $('#dropzone-images').prepend(element);
+  $('#dropzone-images-edit').html($('#dropzone-images').html());
+  magnificPopupInit();
+});
+
+$('#dropzone-images-edit').delegate('.fa-minus-circle', 'click', function() {
+  $.magnificPopup.close();
+  $(this).parent().remove();
+  $('#dropzone-images').html($('#dropzone-images-edit').html());
+  countImages = $('#dropzone-images .dropzone-image').length;
+  dropRefresh();
+  magnificPopupInit();
+});
+
+$('#dropzone-images-edit').delegate('.fa-fast-backward', 'click', function() {
+  $.magnificPopup.close();
+  let element = $(this).parent();
+  $(this).parent().remove();
+  $('#dropzone-images-edit').prepend(element);
+  $('#dropzone-images').html($('#dropzone-images-edit').html());
+  magnificPopupInit();
+});
+
+document.ondragenter = function() {
+  $('.dropmsg').html('{{ text_drop }}');
+  $('.dropmsg').addClass('d-flex');
+}
+
+document.onclick = function() {
+  $('.dropmsg').removeClass('d-flex');
+}
+
+$( document ).ajaxStop(function() {
+  $('.dropmsg').removeClass('d-flex');
+});
+
+//
+// TRANSLATE
+//
+
+async function translate(text, languageTo) {
+  let translatedText;
+  
+  await $.ajax({
+	url: '{{ server }}index.php?route=tool/translate&user_token={{ user_token }}',
+	method: 'POST',
+	data: {language_to: languageTo, text: text},
+	dataType: 'json',
+  }).done(function(json) {
+	if(json['success']) {
+	  translatedText = json['text'];
+	} else {
+	  translatedText = '';
+	}
+  });
+  
+  return translatedText;
+}
+
+$('#btn-translate').click(async function() {
+  loading();
+  
+  $('#btn-translate').prop('disabled', true);
+
+  let note = $('#input-note').val();
+  
+  {% for language in languages %}
+  {% if language.language_id != user_language %}
+	await translate(note, '{{ language.language_id }}').then(async function(translatedText) {
+	  $('#input-product_description-note-{{ language.language_id }}').val(translatedText);
+	});
+  {% else %}
+    $('#input-product_description-note-{{ language.language_id }}').val(note);
+  {% endif %}
+  {% endfor %}
+  
+  generateProductDescription();
+
+  loading(false);
+});
+
+$('#btn-translate-name_product').click(async function(e) {
+  loading();
+
+  let name_product = $('#input-name_product-{{ user_language }}').val();
+  
+  {% for language in languages %}
+  {% if language.language_id != user_language %}
+	await translate(name_product, '{{ language.language_id }}').then(async function(translatedText) {
+	  $('#input-name_product-{{ language.language_id }}').val(translatedText);
+	});
+  {% endif %}
+  {% endfor %}
+  
+  generateProductDescriptionName();
+  
+  $('#name_product-translate').addClass('d-none');
+
+  loading(false);
+});
+
+//
+// FUNCTIONS
+//
+
+function generateProductDescriptionName() {
+  let nameVehicle = '';
+
+  let vehicles = $('#product-vehicle input[name=\'product_vehicle[]\']');
+	
+  for(let i = 0; i < vehicles.length; i++) {
+	let vehicleId = vehicles[i].value;
+	
+	if(i > 0) {
+	  nameVehicle += ', ';
+	}
+	
+	nameVehicle += $('#product-vehicle'+vehicleId+' span').text();
+  }
+  
+  let nameSuffix = '';
+  
+  if(nameVehicle) {
+	nameSuffix += nameVehicle + ' ';
+  }
+  
+  let brand = $('#input-brand').val();
+
+  if(brand) {
+	nameSuffix += brand + ' ';
+  }
+  
+  let mpn = $('#input-mpn').val();
+
+  if(mpn) {
+	nameSuffix += mpn + ' ';
+  }
+	
+  let oe = $('#input-oe').val();
+
+  if(oe) {
+	nameSuffix += 'OEM ' + oe;
+  }
+  
+  let name;
+  
+  let vehiclePositionId = $('#select-vehicle_position_id').val();
+  
+  {% for language in languages %}
+  name = $('#input-name_product-{{ language.language_id }}').val() + ' ';
+  
+  if(vehiclePositionId != '') {
+	name += vehiclePositionsTranslates[vehiclePositionId][{{ language.language_id }}] + ' ';
+  }
+  
+  name += nameSuffix;
+
+  $('#input-product_description-name-{{ language.language_id }}').val(name.trim());
+  {% endfor %}
+}
+
+let vehicles4partsCache = {};
+
+async function generateProductDescription() {
+  let description;
+  let note;
+  let name;
+  
+  let sku = $('#input-sku').val();
+  let brand = $('#input-brand').val();
+  let mpn = $('#input-mpn').val();
+  let ean = $('#input-ean').val();
+  let oe = $('#input-oe').val();
+  let others = $('#input-others').val();
+  let used = $('#select-used').val();
+  
+  let vehicles = $('#product-vehicle input[name=\'product_vehicle[]\']');
+  
+  let vehicles4parts = $('#product-vehicle4parts input[type=\'hidden\']');
+  
+  let vehicles4partsData = [];
+  
+  for(let i = 0; i < vehicles4parts.length; i++) {
+	let vehicle4parts = vehicles4parts[i].value;
+
+	if(vehicles4partsCache[vehicle4parts]) {
+	  vehicles4partsData.push(vehicles4partsCache[vehicle4parts]);
+	  continue;
+	}
+
+	await $.ajax({
+	  url: '{{ server }}index.php?route=catalog/product.getVehicle4Parts&user_token={{ user_token }}&sku=' + encodeURIComponent(vehicle4parts),
+	  dataType: 'json'
+	}).done(function(json) {
+	  vehicles4partsData.push(json);
+	  vehicles4partsCache[vehicle4parts] = json;
+	});
+  }
+  
+  {% for language in languages %}
+    description = '';
+	
+	note = $('#input-product_description-note-{{ language.language_id }}').val();
+
+	if(note !== '<p><br></p>' && note !== '') {
+	  description += '<p>- {{ translates[language.language_id].text_note }}</p>';
+	  description += note;
+	  //description += '<p><br></p>';
+	}
+
+	if(sku) {
+	  description += '<p>- {{ translates[language.language_id].text_sku }}'+sku+'</p>';
+	}
+
+	if(brand) {
+	  description += '<p>- {{ translates[language.language_id].text_brand }}'+brand+'</p>';
+	}
+
+	if(mpn) {
+	  description += '<p>- {{ translates[language.language_id].text_mpn }}'+mpn+'</p>';
+	}
+
+	if(ean) {
+	  description += '<p>- {{ translates[language.language_id].text_ean }}'+ean+'</p>';
+	}
+
+	if(oe) {
+	  description += '<p>- {{ translates[language.language_id].text_oe }}'+oe+'</p>';
+	}
+
+	if(others) {
+	  description += '<p>- {{ translates[language.language_id].text_others }}'+others+'</p>';
+	}
+
+	if(vehicles.length) {
+	  description += '<p>- {{ translates[language.language_id].text_vehicles }}</p>';
+	  description += '<ul>';
+	}
+
+	for(let i = 0; i < vehicles.length; i++) {
+	  let vehicleId = vehicles[i].value;
+	  description += '<li>'+$('#product-vehicle'+vehicleId).text()+'</li>';
+	}
+
+	if(vehicles.length) {
+	  description += '</ul>';
+	}
+
+	if(vehicles4parts.length) {
+	  description += '<p>- {{ translates[language.language_id].text_vehicles4parts }}</p>';
+	}
+
+	for(let i = 0; i < vehicles4partsData.length; i++) {
+		description += '<ul>';
+
+		description += '<li>{{ translates[language.language_id].text_vehicle4parts_sku }}'+vehicles4partsData[i]['sku']+'</li>';
+
+		if(vehicles4partsData[i]['win']) {
+		  description += '<li>{{ translates[language.language_id].text_win }}'+vehicles4partsData[i]['win']+'</li>';
+		}
+	  
+		if(vehicles4partsData[i]['brand']) {
+		  description += '<li>{{ translates[language.language_id].text_brand }}'+vehicles4partsData[i]['brand']+'</li>';
+		}
+	  
+		if(vehicles4partsData[i]['model']) {
+		  description += '<li>{{ translates[language.language_id].text_model }}'+vehicles4partsData[i]['model']+'</li>';
+		}
+	  
+		if(vehicles4partsData[i]['engine']) {
+		  description += '<li>{{ translates[language.language_id].text_engine }}'+vehicles4partsData[i]['engine']+'</li>';
+		}
+	  
+		if(vehicles4partsData[i]['engine_code']) {
+		  description += '<li>{{ translates[language.language_id].text_engine_code }}'+vehicles4partsData[i]['engine_code']+'</li>';
+		}
+	  
+		if(Number(vehicles4partsData[i]['year'])) {
+		  description += '<li>{{ translates[language.language_id].text_year }}'+vehicles4partsData[i]['year']+'</li>';
+		}
+	  
+		if(vehicles4partsData[i]['color']) {
+		  description += '<li>{{ translates[language.language_id].text_color }}'+vehicles4partsData[i]['color']+'</li>';
+		}
+	  
+		if(vehicles4partsData[i]['color_code']) {
+		  description += '<li>{{ translates[language.language_id].text_color_code }}'+vehicles4partsData[i]['color_code']+'</li>';
+		}
+	  
+		if(vehicles4partsData[i]['transmission']) {
+		  description += '<li>{{ translates[language.language_id].text_transmission }}'+vehicles4partsData[i]['transmission']+'</li>';
+		}
+	  
+		if(vehicles4partsData[i]['gb_code']) {
+		  description += '<li>{{ translates[language.language_id].text_gb_code }}'+vehicles4partsData[i]['gb_code']+'</li>';
+		}
+	  
+		if(Number(vehicles4partsData[i]['gb_speed_level'])) {
+		  description += '<li>{{ translates[language.language_id].text_gb_speed_level }}'+vehicles4partsData[i]['gb_speed_level']+'</li>';
+		}
+
+		if(vehicles4partsData[i]['drive']) {
+		  description += '<li>{{ translates[language.language_id].text_drive }}'+vehicles4partsData[i]['drive']+'</li>';
+		}
+	  
+		if(Number(vehicles4partsData[i]['km'])) {
+		  description += '<li>{{ translates[language.language_id].text_km }}'+vehicles4partsData[i]['km']+'</li>';
+		}
+	  
+		description += '</ul>';
+	}
+	
+	if (used === '1') {
+	  description += '<p>- {{ translates[language.language_id].text_quality }}{{ translates[language.language_id].text_used }}</p>';
+	} else {
+	  description += '<p>- {{ translates[language.language_id].text_quality }}{{ translates[language.language_id].text_new }}</p>';
+	}
+	
+	$('#input-product_description-description-{{ language.language_id }}').summernote('code', description);
+  {% endfor %}
+}
+
+function addVehicle4Parts(sku, name) {
+  $('#vehicle4parts' + sku).remove();
+  $('#product-vehicle4parts').prepend('<input id="vehicle4parts' + sku + '" type="hidden" name="product_vehicle4parts[]" value="' + sku + '" />');
+}
+
+function deleteVehicle4Parts(sku) {
+  $('#vehicle4parts' + sku).remove();
+}
+
+
+async function addVehicle(id, name, warehouse_id, engineId = false, engineTitle = false) {
+  $('#product-vehicle' + id).remove();
+  
+  if(engineTitle !== false) {
+	name += ' ' + engineTitle;
+  }
+  
+  let html = '<div id="product-vehicle' + id + '" data-id="' + id + '" class="chip text-nowrap mt-3"><span>' + name + '</span><i class="close fas fa-times"></i><input type="hidden" name="product_vehicle[]" value="' + id + '"/>';
+  
+  if(engineId !== false) {
+	html += '<input type="hidden" name="product_vehicle_engine[' + id + ']" value="' + engineId + '"/>';
+  }
+  
+  html += '</div>';
+  
+  $('#product-vehicle').prepend(html);
+  
+  await $.ajax({
+	url: '{{ server }}index.php?route=catalog/product.getVehicle4PartsByVehicle&user_token={{ user_token }}&vehicle_id=' + encodeURIComponent(id) + '&engine_id=' + encodeURIComponent(engineId) + '&warehouse_id=' + encodeURIComponent(warehouse_id),
+	dataType: 'json',
+	success: function(json) {
+	  $.each(json, function (i, item) {
+		addVehicle4Parts(item['sku'], item['name']);
+	  });
+	}
+  });
+  
+  $('#product-vehicle .chip .close').click(function(e) {
+	deleteVehicle(e.currentTarget);
+  });
+}
+
+$('#product-vehicle .chip .close').click(function(e) {
+  deleteVehicle(e.currentTarget);
+});
+
+async function deleteVehicle(target) {
+  let vehicleId = target.parentElement.getElementsByTagName('input')[0].value;
+  let engineId = 0;
+  
+  if(target.parentElement.getElementsByTagName('input')[1] !== undefined) {
+	engineId = target.parentElement.getElementsByTagName('input')[1].value;
+  }
+
+  await $.ajax({
+	url: '{{ server }}index.php?route=catalog/product.getVehicle4PartsByVehicle&user_token={{ user_token }}&vehicle_id=' + encodeURIComponent(vehicleId) + '&engine_id=' + encodeURIComponent(engineId) + '&warehouse_id=0',
+	dataType: 'json',
+	success: function(json) {
+	  $.each(json, function (i, item) {
+		deleteVehicle4Parts(item['sku']);
+	  });
+	}
+  });
+
+  target.parentElement.remove();
+  generateProductDescriptionName();
+  generateProductDescription();
+}
+
+function magnificPopupInit() {
+  $('.dropzone-image').magnificPopup({
+	type:'image',
+	gallery: {
+	  enabled: true
+	}
+  });	
+}
+</script>
+{{ footer }} 

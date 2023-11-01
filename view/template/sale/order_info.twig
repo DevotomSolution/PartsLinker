@@ -1,0 +1,205 @@
+{{ header }}{{ navigation }}
+<!--Main layout-->
+<main style="margin-top: 58px" class="pt-3">
+  <div class="container-fluid">
+	<div class="row mb-3">
+      <div class="col-lg-4">
+	    <div class="card">
+		  <div class="card-header"><strong><i class="fa fa-shopping-cart fa-fw me-2"></i>{{ text_order_detail }}</strong></div>
+		  <div class="card-body">
+		    <p class="card-text"><i class="fa fa-shopping-cart fa-fw me-2"></i>{{ onlineshop }}</p>
+		    <p class="card-text"><i class="fa fa-calendar fa-fw me-2"></i>{{ date_added }}</p>
+		    <p class="card-text"><i class="fa fa-credit-card fa-fw me-2"></i>{{ payment_method }}</p>
+		    <p class="card-text"><i class="fa fa-truck fa-fw me-2"></i>{{ shipping_method }}</p>
+		  </div>
+		</div>
+      </div>
+	  <div class="col-lg-4">
+	    <div class="card">
+		  <div class="card-header"><strong><i class="fa fa-user fa-fw me-2"></i>{{ text_customer_detail }}</strong></div>
+		  <div class="card-body">
+		    <p class="card-text"><i class="fa fa-user fa-fw me-2"></i>{{ fullname }}</p>
+		    <p class="card-text"><i class="fa fa-envelope fa-fw me-2"></i><a href="mailto:{{ email }}">{{ email }}</a></p>
+		    <p class="card-text"><i class="fa fa-phone fa-fw me-2"></i>{{ telephone }}</p>
+		    <p class="card-text"><i class="fa fa-globe-americas fa-fw me-2"></i>{{ country }}</p>
+		  </div>
+		</div>
+      </div>
+	  <div class="col-lg-4">
+	    <div class="card">
+		  <div class="card-header"><strong><i class="fa fa-cog me-2"></i>{{ text_option }}</strong></div>
+		  <div class="card-body">
+			<div class="card-text d-flex">
+			  <div>{{ text_invoice }}</div>
+			  <div id="invoice" class="text-end flex-fill">{% if not invoice_no %}<button id="button-invoice" data-toggle="tooltip" title="{{ button_generate }}" class="btn btn-success btn-sm"><i class="fa fa-cog"></i></button>{% else %}<a href="{{ invoice }}" target="blank" class="text-primary">{{ invoice_no }}</a>{% endif %}</div>
+			</div>
+			{% if tracking == '' %}
+			<div class="card-text d-flex align-items-center mt-3">
+			  <div class="me-3">{{ text_add_waybill }}</div>
+			  <div class="flex-fill">
+				<select class="select" id="select-delivery">
+					<option value=''></option>
+					{% for delivery_method in delivery_methods %}
+					<option value="{{ delivery_method.code }}">{{ delivery_method.title }}</option>
+					{% endfor %}
+				</select>
+				<label class="form-label select-label">{{ select_delivery }}</label>
+			  </div>
+			</div>
+			{% else %}
+			<div class="card-text d-flex align-items-center mt-3">
+			  <div class="me-3">{{ shipping_method }}</div>
+			  <div class="flex-fill text-end">
+				<a href="{{ print }}" target="blank"><i class="fas fa-print me-2"></i>{{  tracking }}</a>
+			  </div>
+			</div>
+			{% endif %}
+		  </div>
+		</div>
+      </div>
+    </div>
+	<table class="table table-bordered">
+	  <tr>
+		<td><strong>{{ text_shipping_address }}</strong></td>
+	  </tr>
+	  <tr>
+		<td>{{ shipping_address }}</td>
+	  </tr>
+	</table>
+	<table class="table table-bordered">
+	  <tr>
+		<td class="text-start"><strong>{{ column_product }}</strong></td>
+		<td class="text-end"><strong>{{ column_quantity }}</strong></td>
+		<td class="text-end"><strong>{{ column_price }}</strong></td>
+		<td class="text-end"><strong>{{ column_total }}</strong></td>
+	  </tr>
+	  {% for product in products %}
+	  <tr>
+		<td class="text-start">{% if product.link %}<a href="{{ product.link }}" target="blank">{{ product.name }}</a>{% else %}{{ product.name }}{% endif %}</td>
+		<td class="text-end">{{ product.quantity }}</td>
+		<td class="text-end">{{ product.price }}</td>
+		<td class="text-end">{{ product.total }}</td>
+	  </tr>
+	  {% endfor %}
+	  {% for total in totals %}
+      <tr>
+        <td colspan="3" class="text-end"><strong>{{ total.title }}</strong></td>
+        <td class="text-end">{{ total.text }}</td>
+      </tr>
+      {% endfor %}
+	</table>
+	{% if comment %}
+	<table class="table table-bordered">
+	  <thead>
+		<tr>
+		  <td><strong>{{ text_comment }}</strong></td>
+		</tr>
+	  </thead>
+	  <tbody>
+		<tr>
+		  <td>{{ comment }}</td>
+		</tr>
+	  </tbody>
+	</table>
+	{% endif %}
+	<div class="row mt-2 mb-2"><div class="col"><div id="history"></div></div></div>
+	<div class="row align-items-center>
+		<div class="col-12">
+		  <select name="order_status_id" id="input-order-status" class="select">
+			{% for order_statuses in order_statuses %}
+			  {% if order_statuses.order_status_id == order_status_id %}
+			  <option value="{{ order_statuses.order_status_id }}" selected="selected">{{ order_statuses.name }}</option>
+			  {% else %}
+			  <option value="{{ order_statuses.order_status_id }}">{{ order_statuses.name }}</option>
+			  {% endif %}
+			{% endfor %}
+		  </select>
+		  <label class="form-label select-label">{{ entry_order_status }}</label>
+		</div>
+		<div class="col-12 mt-3">
+		  <div class="form-outline">
+			<textarea name="comment" rows="3" id="input-comment" class="form-control"></textarea>
+			<label class="form-label" for="input-comment">{{ entry_comment }}</label>
+		  </div>
+		</div>
+		<div class="text-end mt-3 mb-3">
+		  <button id="button-history" class="btn btn-primary"><i class="fa fa-plus-circle me-2"></i>{{ button_history_add }}</button>
+		</div>
+	  </div>
+	</div>
+  </div>
+</main>
+<script type="text/javascript">
+$('#select-delivery').change(function() {
+ if($('#select-delivery').val() != '') {
+	loading();
+	document.location = '{{ waybill_redirect }}'.replace('%s', $('#select-delivery').val());
+  }
+});
+
+$(document).delegate('#button-invoice', 'click', function() {
+  $.ajax({
+	url: '{{ server }}index.php?route=sale/order.createInvoiceNo&user_token={{ user_token }}&order_id={{ order_id }}',
+	dataType: 'json',
+	beforeSend: function() {
+	},
+	complete: function() {
+	},
+	success: function(json) {
+	  $('.alert-dismissible').remove();
+	  if (json['error']) {
+		$('#container').prepend('<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger">' + json['error'] + '<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>');
+		document.querySelectorAll('.alert').forEach((alert) => {
+		  new mdb.Alert(alert);
+		});
+	  }
+	  if (json['invoice_no']) {
+		$('#invoice').html('<a href="'+json['invoice']+'" target="blank" class="text-primary">'+json['invoice_no']+'</a>');
+	  }
+	},
+	error: function(xhr, ajaxOptions, thrownError) {
+	  alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+	}
+  });
+});
+
+$('#history').delegate('.pagination a', 'click', function(e) {
+  e.preventDefault();
+  $('#history').load(this.href);
+});
+
+$('#history').load('{{ server }}index.php?route=sale/order.history&user_token={{ user_token }}&order_id={{ order_id }}');
+
+$('#button-history').on('click', function() {
+  $.ajax({
+	url: '{{ server }}index.php?route=sale/order.addHistory&user_token={{ user_token }}&order_id={{ order_id }}',
+	type: 'post',
+	dataType: 'json',
+	data: 'order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()) + '&notify=' + ($('input[name=\'notify\']').prop('checked') ? 1 : 0) + '&append=' + ($('input[name=\'append\']').prop('checked') ? 1 : 0) + '&comment=' + encodeURIComponent($('textarea[name=\'comment\']').val()),
+	beforeSend: function() {
+	},
+	complete: function() {
+	},
+	success: function(json) {
+	  $('.alert-dismissible').remove();
+	  if (json['error']) {
+		$('#history').before('<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger">' + json['error'] + '<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>');
+	  }
+	  if (json['success']) {
+		$('#history').load('{{ server }}index.php?route=sale/order.history&user_token={{ user_token }}&order_id={{ order_id }}');
+		$('#history').before('<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success">' + json['success'] + '<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>');
+		$('textarea[name=\'comment\']').val('');
+	  }
+	
+	  document.querySelectorAll('.alert').forEach((alert) => {
+		new mdb.Alert(alert);
+	  });
+	},
+	error: function(xhr, ajaxOptions, thrownError) {
+	  alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+	}
+  });
+});
+</script>
+</div>
+{{ footer }} 

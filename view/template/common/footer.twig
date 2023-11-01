@@ -1,0 +1,20 @@
+</body></html>
+{% for style in styles %}
+<link href="{{ style.href }}" type="text/css" rel="{{ style.rel }}" media="{{ style.media }}" />
+{% endfor %}
+{% for script in scripts %}
+<script src="{{ script.href }}" type="text/javascript"></script>
+{% endfor %}
+<script>
+let delay;
+  
+{% for alert in alerts %}
+  delay = 0;
+  
+  if('{{ alert.type }}' === 'success') {
+	delay = 5000;
+  }
+	
+  addAlert("{{ alert.title }}", "{{ alert.alert }}", "{{ alert.type }}", delay);
+{% endfor %}
+</script>

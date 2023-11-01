@@ -1,0 +1,39 @@
+{{ header }}{{ navigation }}
+<!--Main layout-->
+<main style="margin-top: 58px" class="pt-3">
+  <div class="container-fluid">
+	{% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% if success %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% for product_category in product_categories %}
+	<div class="mt-3">
+	  <select class="select" name="{{ product_category.category_id }}" class="form-control">
+		<option value=""></option>
+	    {% for autovit_type in autovit_types %}
+		<option value="{{ autovit_type.code }}"{% if autovit_type.code == product_category_2_autovit_type[product_category.category_id] %} selected{% endif %}>{{ autovit_type.name }}</option>
+		{% endfor %}
+	  </select>
+	  <label class="form-label select-label">{{ product_category.path }}</label>
+	</div>
+	{% endfor %}
+	<div class="row mt-3">
+	  <div class="col-sm-6 text-start">{{ pagination }}</div>
+	  <div class="col-sm-6 text-end">{{ results }}</div>
+	</div>
+  </div>
+</main>
+{{ footer }}
+<script>
+$('select').change(function(e) {
+  $.ajax({
+	url: '{{ server }}index.php?route=admin/onlineshop/autovit.write&user_token={{ user_token }}&product_category=' +  encodeURIComponent(e.target.name) + '&autovit_type_code=' +  encodeURIComponent(e.target.value)
+  });
+});
+</script>

@@ -1,0 +1,60 @@
+<header>
+  <nav id="sidenav" class="sidenav" data-mdb-hidden="false" data-mdb-accordion="true"style="background-color: #242d37;">
+    <img src="{{ server }}view/img/logo-white.png" class="w-100" style="margin-left: -5px;"/>
+    <!--<a class="ripple d-flex justify-content-center align-items-center py-4 fs-4" href="{{ home }}" data-mdb-ripple-color="primary" style="background-color: #19222E!important;color: #FFFFFF!important;"><i class="fas fa-tachometer-alt me-3" style="color:#3b71ca"></i>{{ text_dashboard }}</a>-->
+    <ul class="sidenav-menu" style="color:#b3cbdd;">
+	{% for item in navigaton %}
+	  {% if item.collapse %}
+	  <li class="sidenav-item">
+        <a class="sidenav-link fs-5">{{ item.title }}</a>
+        <ul class="sidenav-collapse">
+		  {% for collapse_item in item.collapse %}
+          <li class="sidenav-item">
+            <a href="{{ collapse_item.link }}" class="sidenav-link fs-6">{{ collapse_item.title }}</a>
+          </li>
+		  {% endfor %}
+		</ul>
+      </li>
+	  {% else %}
+	  <li class="sidenav-item">
+        <a class="sidenav-link fs-5" href="{{ item.link }}">{{ item.title }}</a>
+      </li>
+	  {% endif%}
+	{% endfor %}
+	  <li class="sidenav-item d-lg-none">
+        <a class="sidenav-link fs-5"><i class="fas fa-user-cog fa-fw me-3"></i><span>{{ text_account }}</span></a>
+        <ul class="sidenav-collapse">
+          <li class="sidenav-item">
+            <a href="{{ setting }}" class="sidenav-link fs-6"><i class="fa fa-cog me-3"></i>{{ text_setting }}</a>
+          </li>
+		  <li class="sidenav-item">
+            <a class="sidenav-link fs-6" href="{{ logout }}"><i class="fa fa-lock me-3"></i><span>{{ button_logout }}</span></a>
+		  </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+  <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <div class="container-fluid">
+      <button data-mdb-toggle="sidenav" data-mdb-target="#sidenav" class="btn btn-lg shadow-0 pe-3 ps-3 d-flex d-xxl-none" aria-controls="#sidenav" aria-haspopup="true"><i class="fas fa-bars fa-lg fs-3"></i></button>
+	  <a class="ripple" href="{{ home }}" data-mdb-ripple-color="primary"><img src="{{ logo }}"/></a>
+      <ul class="navbar-nav ms-auto d-flex flex-row align-items-center">
+		<li class="nav-item">{{ cart }}</li>
+		<li class="nav-item">
+		  <div class="dropdown d-none d-lg-block">
+			<a class="btn btn-link me-3 me-lg-0 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownAccount" role="button" data-mdb-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw me-3"></i><span>{{ text_account }}</span></a>
+			<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownAccount">
+			  <li>
+				<a class="btn btn-link btn-block text-start" href="{{ setting }}"><i class="fa fa-cog me-3"></i><span>{{ text_setting }}</span></a>
+			  </li>
+			  <li>
+				<a class="btn btn-link btn-block text-start" href="{{ logout }}"><i class="fa fa-lock me-3"></i><span>{{ button_logout }}</span></a>
+			  </li> 
+			</ul>
+		  </div>
+        </li>
+        <li class="nav-item d-none d-lg-block">{{ language_selector }}</li>
+      </ul>
+    </div>
+  </nav>
+</header>

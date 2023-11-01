@@ -1,0 +1,89 @@
+<div class="dropdown">
+  <button class="btn btn-link position-relative" type="button" data-mdb-toggle="dropdown" aria-expanded="false">
+	<i class="fas fa-shopping-cart fs-5"></i>
+	<span id="cart-total" style="position: absolute; top: 5px; right: 13px;" class="badge bg-danger ms-2">{{ cart_total }}</span>
+  </button>
+  <ul id="cart-products" class="dropdown-menu dropdown-menu-end" style="width: 320px;">
+	{% if cart_products %}
+	  {% for product in cart_products %}
+	  <li id="cart-product{{ product.sku }}" class="pb-3">
+	    <div class="d-flex align-items-center pe-3 ps-3">
+		  <div class="flex-fill">
+		    <img src="{{ product.image }}" height="40px" alt="{{ product.name }}"/>
+			<a href="{{ product.link }}" target="blank">{{ product.name }}</a>
+		  </div>
+		  <div>
+			<span>{{ product.quantity }}x{{ product.price_formated }}</span>
+			<a data-sku="{{ product.sku }}" class="cart-remove text-danger ms-3 me-1" style="cursor: pointer;"><i class="fas fa-times"></i></a>
+		  </div>
+		</div>
+	  </li>
+	  {% endfor %}
+	{% endif %}
+	<li class="text-end p-3"><a class="btn btn-primary" href="{{ add_order }}">{{ button_add_order }}</a></li>
+  </ul>
+</div>
+<script>
+$(document).ready(function() {
+	$('.btn-cart').click(function(e) {
+	  $.ajax({
+		url: '{{ server }}index.php?route=catalog/cart.add&user_token={{ user_token }}&sku=' +  e.currentTarget.attributes['data-sku'].value,
+		dataType: 'json',
+		success: function(json) {
+		  if(json['total'] !== undefined) {
+			$('#cart-total').html(json['total']);
+		  }
+			
+		  if(json['product'] !== undefined) {
+			$('#cart-product'+json['product']['sku']).remove();
+		
+			let html = '';
+			
+			html += '<li id="cart-product'+json['product']['sku']+'" class="pb-3">';
+			  html += '<div class="d-flex align-items-center pe-3 ps-3">';
+				html += '<div class="flex-fill">';
+				  html += '<img src="'+json['product']['image']+'" height="40px" alt="'+json['product']['name']+'"/>';
+				  html += '<a href="'+json['product']['link']+'" target="blank">'+json['product']['name']+'</a>';
+				html += '</div>';
+				html += '<div>';
+				  html += '<span>'+json['product']['quantity']+'x'+json['product']['price_formated']+'</span>';
+				  html += '<a data-sku="'+json['product']['sku']+'" class="cart-remove text-danger ms-3 me-1" style="cursor: pointer;"><i class="fas fa-times"></i></a>';
+				html += '</div>';
+			  html += '</div>';
+			html += '</li>';
+				
+			$('#cart-products').prepend(html);
+				
+			$('.cart-remove').click(function(e) {
+			  $.ajax({
+				url: '{{ server }}index.php?route=catalog/cart.remove&user_token={{ user_token }}&sku=' +  e.currentTarget.attributes['data-sku'].value,
+				dataType: 'json',
+				success: function(json) {
+					if(json['total'] !== undefined) {
+						$('#cart-total').html(json['total']);
+					}
+				}
+			  });
+			  e.currentTarget.parentNode.parentNode.remove();
+			  return false;
+			});
+		  }
+		}
+	  });
+	});
+
+	$('.cart-remove').click(function(e) {
+	  $.ajax({
+		url: '{{ server }}index.php?route=catalog/cart.remove&user_token={{ user_token }}&sku=' +  e.currentTarget.attributes['data-sku'].value,
+		dataType: 'json',
+		success: function(json) {
+			if(json['total'] !== undefined) {
+				$('#cart-total').html(json['total']);
+			}
+		}
+	  });
+	  e.currentTarget.parentNode.parentNode.remove();
+	  return false;
+	});
+});
+</script>

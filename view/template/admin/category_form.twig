@@ -1,0 +1,150 @@
+{{ header }}{{ navigation }}
+<!--Main layout-->
+<main style="margin-top: 58px" class="pt-3">
+  <div class="container-fluid">
+	{% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	<form method="POST" action="{{ action}}" class="mt-3">
+	  <div id="parent_id" class="form-outline">
+		<input type="text" name="parent_id" value="{{ parent_path }}" class="form-control" />
+		<label class="form-label" for="input-parent_id">{{ select_parent_category }}</label>
+		<input type="hidden" value="{{ parent_id }}" id="input-parent_id" name="parent_id"/>
+	  </div>
+	  {% for language in languages %}
+	  <div class="form-outline mt-3">
+		<img src="{{ server }}language/{{ language.code }}/{{ language.code }}.png" class="trailing"/>
+		<input type="text" id="input-name-{{ language.language_id }}" name="category_description[{{ language.language_id }}][name]" value="{{ category_description[language.language_id].name }}" class="form-control" />
+		<label class="form-label" for="input-name-{{ language.language_id }}">{{ text_category_name }}</label>
+	  </div>
+	  {% endfor %}
+	  <div class="text-end mt-2">
+		<button type="button" id="btn-translate" class="btn btn-primary"><i class="fa fa-globe me-2"></i>{{ button_translate }}</button>
+	  </div>
+	  <div class="form-outline mt-3">
+		<input type="number" id="input-default_weight" name="default_weight" step="0.001" value="{{ default_weight }}" class="form-control" />
+		<label class="form-label" for="input-default_weight">{{ entry_default_weight }}</label>
+	  </div>
+	  <div id="preview-image" onclick="fileExplorer();" class="border rounded overflow-hidden text-center mt-3" style="width: 280px; height: 150px;"><img src="{{ image.path }}" class="h-100" /></div>
+	  <input type="file" class="d-none" accept="image/png,image/jpeg,image/jpg" id="selectfile" />
+	  <input type="hidden" value="{{ image.image }}" id="input-image" name="image"/>
+	  <div class="text-start mt-3 mb-3">
+		<button type="submit" class="btn btn-primary" style="min-width: 150px;"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+		<a href="{{ cancel }}" class="btn btn-default"><i class="fa fa-reply me-2"></i>{{ button_cancel }}</a>
+	  </div>
+	</form>
+  </div>
+</main>
+<script>
+$(document).ready(function() {
+  const dataCategories = [
+	{id: "0", path: "{{ text_no_parent }}"},
+	{% for category in all_categories %}
+	{id: "{{ category.category_id }}", path: "{{ category.path }}"},
+	{% endfor %}
+  ];
+	
+  const dataFilterCategories = (value) => {
+	return dataCategories.filter((item) => {
+	  return item.path.toLowerCase().startsWith(value.toLowerCase());
+	});
+  };
+  
+  $('#parent_id').autocomplete({
+	filter: dataFilterCategories,
+	noResults: '',
+	displayValue: function(value) {
+	  return value.path;
+	}
+  });
+  
+  $('#parent_id').on('itemSelect.mdb.autocomplete', function(e) {
+	$('#input-parent_id').val(e.value.id);
+  });
+});
+
+function fileExplorer() {
+  document.getElementById('selectfile').click();
+  document.getElementById('selectfile').onchange = function() {
+	file = document.getElementById('selectfile').files[0];
+	uploadImage(file);
+  }
+}
+
+async function uploadImage(file) {
+  if (file.type.match(/image.*/)) {
+	imgFile = await imageResize(file, '{{ MAX_IMAGE_WIDTH }}', '{{ MAX_IMAGE_HEIGHT }}');
+	
+	let formData = new FormData();
+	formData.append('image', imgFile);
+
+	$.ajax({
+	  type: 'POST',
+	  url: '{{ server }}index.php?route=admin/tool/category.uploadImage&user_token={{ user_token }}',
+	  contentType: false,
+	  processData: false,
+	  data: formData,
+	  success:function(response) {
+		if(response.error !== undefined) {
+		  alert(response.error);
+		  return;
+		}
+		
+		$('#selectfile').val('');
+		$('#preview-image').html('<img src="' + response['path'] + '" class="h-100" />');
+		$('#input-image').val(response['image']);
+	  }
+	});
+  }
+}
+
+async function translate(text, languageTo) {
+  let translatedText;
+  
+  await $.ajax({
+	url: '{{ server }}index.php?route=tool/translate&user_token={{ user_token }}',
+	method: 'POST',
+	data: {language_to: languageTo, text: text},
+	dataType: 'json',
+  }).done(function(json) {
+	if(json['success']) {
+	  translatedText = json['text'];
+	} else {
+	  translatedText = '';
+	}
+  });
+  
+  return translatedText;
+}
+
+$('#btn-translate').click(async function() {
+  loading();
+  
+  $('#btn-translate').prop('disabled', true);
+
+  let text = $('#input-name-{{ user_language }}').val();
+  
+  if (text == '') {
+	alert('{{ text_error }}');
+	loading(false);
+	$('#btn-translate').prop('disabled', false);
+	return;
+  }
+  
+  {% for language in languages %}
+    {% if language.language_id != user_language %}
+	await translate(text, '{{ language.language_id }}').then(async function(translatedText) {
+	  $('#input-name-{{ language.language_id }}').val(translatedText);
+	  $('#input-name-{{ language.language_id }}').addClass('active');
+	});
+    {% endif %}
+  {% endfor %}
+
+  loading(false);
+  
+  $('#btn-translate').prop('disabled', false);
+});
+</script>
+{{ footer }}

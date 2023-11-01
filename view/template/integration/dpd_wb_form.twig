@@ -1,0 +1,447 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+  {% if error_warning %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+	  <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	</div>
+  {% endif %}
+  <form method="POST" action="{{ action }}">
+    <p class="lead text-primary">Recipient</p>
+	<div class="row">
+	  <div class="col-md-6">
+	    <div class="form-outline mb-3">
+		  <input type="text" name="phone1" value="{{ phone1 }}" class="form-control" />
+		  <label class="form-label"><span class='text-danger'>*</span> {{ entry_phone }}</label>
+		</div>
+		<div class="d-flex align-items-center mb-3">
+		  <div class="form-outline me-3">
+			<input type="text" name="name" value="{{ name }}" class="form-control" />
+			<label class="form-label"><span class='text-danger'>*</span> {{ entry_name }}</label>
+		  </div>
+		  <div class="form-check">
+			<input class="form-check-input" name="private" type="checkbox" value="1" id="private" checked/>
+			<label class="form-check-label" for="private">{{ entry_private }}</label>
+		  </div>
+		</div>
+		<div id="contact" class="form-outline d-none mb-3">
+		  <input type="text" name="contact" value="{{ contact }}" class="form-control" />
+		  <label class="form-label">{{ entry_contact }}</label>
+		</div>
+	  </div>
+	  <div class="col-md-6">
+	    <div class="form-outline mb-3">
+		  <input type="text" name="phone2" value="{{ phone2 }}" class="form-control" />
+		  <label class="form-label">{{ entry_phone2 }}</label>
+		</div>
+		<div class="form-outline mb-3">
+		  <input type="text" name="email" value="{{ email }}" class="form-control" />
+		  <label class="form-label">{{ entry_email }}</label>
+		</div>
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-md-6">
+	    <div id="country" class="form-outline autocomplete mb-3">
+		  <input type="text" id="input-country" name="country_name" value="{{ country_name }}" class="form-control" />
+		  <label class="form-label" for="input-country"><span class='text-danger'>*</span> {{ select_country }}</label>
+		</div>
+		<input type="hidden" id="input-country_id" name="country_id" value="{{ country_id }}"/>
+		<input type="hidden" id="input-address_type" name="address_type" value="{{ address_type }}"/>
+	  </div>
+	  <div class="col-md-6">
+	    <div id="state" class="form-outline autocomplete mb-3 {% if state_id == '' %}d-none{% endif %}">
+		  <input type="text" id="input-state" name="state_name" value="{{ state_name }}" class="form-control" />
+		  <label class="form-label" for="input-state"><span class='text-danger'>*</span> {{ select_state }}</label>
+		</div>
+		<input type="hidden" id="input-state_id" name="state_id" value="{{ state_id }}"/>
+	  </div>
+	</div>
+	<div id="block-site" class="row {% if address_type == '' %}d-none{% endif %}">
+	  <div class="col-md-8">
+		<div id="site" class="form-outline autocomplete mb-3">
+		  <input type="text" id="input-site" name="site_name" value="{{ site_name }}" class="form-control" />
+		  <label class="form-label" id="input-site-label" for="input-site"><span class='text-danger'>*</span> {{ entry_site }}</label>
+		  <input type="hidden" id="input-site_id" name="site_id" value="{{ site_id }}"/>
+		</div>
+	  </div>
+	  <div class="col-md-4">
+		<div class="form-outline mb-3">
+		  <input type="text" name="postcode" id="input-postcode" value="{{ postcode }}" class="form-control" />
+		  <label class="form-label"><span class='text-danger'>*</span> {{ entry_postcode }}</label>
+		</div>
+	  </div>
+	</div>
+	<div id="address-type-1" {% if address_type != '1' %}class="d-none"{% endif %}>
+	  <div class="row">
+		<div class="col d-flex">
+		  <div id="street" class="form-outline autocomplete mb-3 me-4">
+			<input type="text" name="street_name" value="{{ street_name }}" id="input-street" class="form-control" {% if site_id == '' %}disabled{% endif %}/>
+			<label class="form-label" for="input-street">{{ select_street }}</label>
+		  </div>
+		  <input type="hidden" id="input-street_id" name="street_id" value="{{ street_id }}"/>
+		  <div class="form-outline mb-3" style="max-width: 100px;">
+			<input type="text" id="input-street_no" name="street_no" value="{{ street_no }}" class="form-control" {% if site_id == '' %}disabled{% endif %}/>
+			<label class="form-label">{{ entry_street_no }}</label>
+		  </div>
+		</div>
+	  </div>
+	  <div class="form-outline mb-3">
+		<input type="text" name="address_note" value="{{ address_note }}" class="form-control" />
+		<label class="form-label">{{ entry_address_note }}</label>
+	  </div>
+	</div>
+	<div id="address-type-2" {% if address_type != '2' %}class="d-none"{% endif %}>
+	  <div id="address1" class="form-outline mb-3">
+		<input type="text" name="address1" value="{{ address1 }}" class="form-control" />
+		<label class="form-label"><span class='text-danger'>*</span> {{ entry_address1 }}</label>
+	  </div>
+	  <div id="address2" class="form-outline mb-3">
+		<input type="text" name="address2" value="{{ address2 }}" class="form-control" />
+		<label class="form-label">{{ entry_address2 }}</label>
+	  </div>
+	</div>
+	<p class="lead text-primary">Shipment details</p>
+	<div class="mb-3">
+	  <select class="select" name="pickup_date">
+	    <option value="">{{ option_default }}</option>
+		{% for date in pickup_dates %}
+		<option value="{{ date }}" {% if date == pickup_date %}selected{% endif %}>{{ date }}</option>
+		{% endfor %}
+	  </select>
+	  <label class="form-label select-label">{{ select_pickup_date }}</label>
+	</div>
+	<div class="mb-3">
+	  <select class="select" id="select-service_id" name="service_id">
+		<option value=""></option>
+		{% for service in services %}
+		<option value="{{ service.id }}" {% if service.id == service_id %}selected{% endif %}>{{ service.nameEn }}</option>
+		{% endfor %}
+	  </select>
+	  <label class="form-label select-label"><span class='text-danger'>*</span> {{ select_service }}</label>
+	</div>
+	<div class="mb-3">
+	  <div class="form-outline">
+		<input type="number" id="input-cod" name="cod" value="{{ cod }}" class="form-control" disabled/>
+		<label class="form-label">{{ entry_cod }}</label>
+	  </div>
+	</div>
+	<div class="mb-3">
+	  <select id="select-service_payer" class="select" name="service_payer">
+		<option value="SENDER" {% if service_payer == SENDER %}selected{% endif %}>{{ option_sender }}</option>
+		<option value="RECIPIENT {% if service_payer == RECIPIENT %}selected{% endif %}">{{ option_recipient }}</option>
+		{% for client in clients %}
+		<option value="{{ client.clientId }}" {% if service_payer == client.clientId %}selected{% endif %}>{{ client.clientName }} {{ client.address.siteAddressString }}</option>
+		{% endfor %}
+	  </select>
+	  <label class="form-label select-label"><span class='text-danger'>*</span> {{ select_service_payer }}</label>
+	</div>
+	<div class="mb-3">
+	  <div id="contents" class="form-outline">
+		<input type="text" name="contents" value="{{ contents }}" class="form-control" />
+		<label class="form-label"><span class='text-danger'>*</span> {{ entry_contents }}</label>
+	  </div>
+	</div>
+	<div class="mb-3">
+	  <div id="package" class="form-outline">
+		<input type="text" name="package" value="{{ package }}" class="form-control" />
+		<label class="form-label"><span class='text-danger'>*</span> {{ entry_package }}</label>
+	  </div>
+	</div>
+	<div class="mb-3">
+	  <div id="parcels_count" class="form-outline">
+		<input type="number" name="parcels_count" value="{{ parcels_count }}" class="form-control" />
+		<label class="form-label"><span class='text-danger'>*</span> {{ entry_parcels_count }}</label>
+	  </div>
+	</div>
+	<div class="mb-3">
+	  <div id="total_weight" class="form-outline">
+		<input type="number" step="0.001" min="0" name="total_weight" value="{{ total_weight }}" class="form-control" />
+		<label class="form-label"><span class='text-danger'>*</span> {{ entry_total_weight }}</label>
+	  </div>
+	</div>
+	<div class="mb-3">
+	  <div class="form-outline">
+	    <textarea name="note" rows="3" class="form-control">{{ note }}</textarea>
+		<label class="form-label">{{ entry_note }}</label>
+	  </div>
+	</div>
+	<button type="submit" class="btn btn-primary ps-5 pe-5 mb-3"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+	<a href="{{ cancel }}" class="btn btn-default mb-3"><i class="fa fa-reply me-2"></i>{{ button_cancel }}</a>
+  </form>
+</div>
+</main>
+<script>
+let siteNomen = {{ site_nomen }};
+let siteVal = '{{ site_name }}';
+let countryVal = '{{ country_name }}';
+
+const services = JSON.parse('{{ services_json }}');
+
+$(document).ready(function() {
+  const siteAutocomplete = document.querySelector('#site');
+
+  const siteFilter = async (query) => {
+	if ($('#input-site').val() !== siteVal) {
+	  $('#input-site_id').val('');
+	}
+  
+	const url = `{{ server }}index.php?route=integration/delivery/dpdro.getSites&user_token={{ user_token }}&country_id=${encodeURI($('#input-country_id').val())}&search=${encodeURI(query)}`;
+	const response = await fetch(url);
+	const data = await response.json();
+	
+	if (data.sites !== undefined) {
+	  return data.sites;
+	} else {
+	  return [];
+	}
+  };
+  
+  let siteAutocompleteInstance = null;
+  
+  if (siteNomen == 1) {
+    siteAutocompleteInstance = new mdb.Autocomplete(siteAutocomplete, {
+	  filter: siteFilter,
+	  noResults: '',
+	  threshold: 1,
+	  displayValue: (value) => value.name
+	});
+  }
+  
+  $('#site').on('itemSelect.mdb.autocomplete', function(e) {
+	$('#input-site_id').val(e.value.id);
+	$('#input-street').attr('disabled', false);
+	$('#input-street_no').attr('disabled', false);
+	siteVal = e.value.value;
+	
+	window.setTimeout(function() {
+	  $('#input-site').val(e.value.value);
+	}, 50);
+  });
+  
+  $('#input-site').focusout(function() {
+	if ($('#input-site_id').val() == '' && siteNomen == 1) {
+	  $('#input-site').val('');
+	}
+  });
+  
+  const countryAutocomplete = document.querySelector('#country');
+  
+  const countryFilter = async (query) => {
+    if ($('#input-country').val() !== countryVal) {
+	  $('#input-country_id').val('');
+	}
+  
+	const url = `{{ server }}index.php?route=integration/delivery/dpdro.getCountries&user_token={{ user_token }}&search=${encodeURI(query)}`;
+	const response = await fetch(url);
+	const data = await response.json();
+	
+	if (data.countries !== undefined) {
+	  return data.countries;
+	} else {
+	  return [];
+	}
+  };
+
+  new mdb.Autocomplete(countryAutocomplete, {
+	filter: countryFilter,
+	noResults: '',
+	threshold: 1,
+	displayValue: (value) => value.nameEn
+  });
+  
+  $('#country').on('itemSelect.mdb.autocomplete', function(e) {
+	$('#input-country_id').val(e.value.id);
+	countryVal = e.value.nameEn;
+	
+	$('#input-state_id').val('');
+	$('#input-site_id').val('');
+	
+	$('#input-postcode').attr('value', '');
+	$('#input-postcode').removeClass('active');
+	
+	window.setTimeout(function() {
+	  $('#input-site').val('');
+	  $('#input-site').removeClass('active');
+	  $('#input-site-label').removeClass('active');
+	}, 50);
+	
+	if (e.value.requireState == true) {
+	  $('#state').removeClass('d-none');
+	} else {
+	  $('#state').addClass('d-none');
+	}
+	
+	$('#block-site').removeClass('d-none');
+	
+	if (e.value.siteNomen == 1) {
+	  siteNomen = 1;
+	  
+	  siteAutocompleteInstance = new mdb.Autocomplete(siteAutocomplete, {
+		filter: siteFilter,
+		noResults: '',
+		threshold: 1,
+		displayValue: (value) => value.name
+	  });
+	} else {
+	  siteNomen = 0;
+	  siteAutocompleteInstance.dispose();
+	}
+	
+	let addressType = e.value.addressType;
+	
+	if (addressType == 1) {
+		$('#address-type-1').removeClass('d-none');
+		$('#address-type-2').addClass('d-none');
+	} else {
+		$('#address-type-1').addClass('d-none');
+		$('#address-type-2').removeClass('d-none');
+	}
+	
+	$('#input-address_type').val(addressType);
+  });
+  
+  $('#input-country').focusout(function() {
+	if ($('#input-country_id').val() == '') {
+	  $('#input-country').val('');
+	}
+  });
+  
+  const stateAutocomplete = document.querySelector('#state');
+  
+  const stateFilter = async (query) => {
+	const url = `{{ server }}index.php?route=integration/delivery/dpdro.getStates&user_token={{ user_token }}&country_id=${encodeURI($('#input-country_id').val())}&search=${encodeURI(query)}`;
+	const response = await fetch(url);
+	const data = await response.json();
+	
+	if (data.states !== undefined) {
+	  return data.states;
+	} else {
+	  return [];
+	}
+  };
+
+  new mdb.Autocomplete(stateAutocomplete, {
+	filter: stateFilter,
+	noResults: '',
+	threshold: 1,
+	displayValue: (value) => value.name
+  });
+  
+  $('#state').on('itemSelect.mdb.autocomplete', function(e) {
+	$('#input-state_id').val(e.value.id);
+  });
+  
+  $('#input-state').focusout(function() {
+	if ($('#input-state_id').val() == '') {
+	  $('#input-state').val('');
+	}
+  });
+  
+ $('#private').on('change', function(e) {
+   if ($('#private').prop('checked')) {
+    $('#contact').addClass('d-none');
+   } else {
+    $('#contact').removeClass('d-none');
+   }
+  });
+  
+  const streetAutocomplete = document.querySelector('#street');
+  
+  const streetFilter = async (query) => {
+	const url = `{{ server }}index.php?route=integration/delivery/dpdro.getStreets&user_token={{ user_token }}&site_id=${encodeURI($('#input-site_id').val())}&search=${encodeURI(query)}`;
+	const response = await fetch(url);
+	const data = await response.json();
+	
+	if (data.streets !== undefined) {
+	  return data.streets;
+	} else {
+	  return [];
+	}
+  };
+
+  new mdb.Autocomplete(streetAutocomplete, {
+	filter: streetFilter,
+	noResults: '',
+	threshold: 1,
+	displayValue: (value) => value.name
+  });
+  
+  $('#street').on('itemSelect.mdb.autocomplete', function(e) {
+	$('#input-street_id').val(e.value.id);
+	
+	window.setTimeout(function() {
+	  $('#input-street').val(e.value.value);
+	}, 50);
+  });
+  
+  /*$('#input-street').focusout(function() {
+	if ($('#input-street_id').val() == '') {
+	  $('#input-street').val('');
+	}
+  });*/
+  
+ $('#private').on('change', function(e) {
+   if ($('#private').prop('checked')) {
+    $('#contact').addClass('d-none');
+   } else {
+    $('#contact').removeClass('d-none');
+   }
+  });
+  
+  $('#select-service_id').change(function() {
+	let service_id = $('#select-service_id').val();
+	let service_data = false;
+	
+	for (key in services) {
+	  if (services[key]['id'] == service_id) {
+		service_data = services[key];
+		break;
+	  }
+	}
+
+	if (service_data == false) {
+	  return;
+	}
+	
+	if (service_data['additionalServices']['cod']['allowance'] === 'ALLOWED') {
+	  $('#input-cod').attr('disabled', false);
+	} else {
+	  $('#input-cod').val('');
+	  $('#input-cod').removeClass('active');
+	  $('#input-cod').attr('disabled', true);
+	}
+  });
+  
+  $('#select-service_id').trigger('change');
+  
+  const contentsAutocomplete = document.querySelector('#contents');
+  const contentsData = ['AUTO PARTS', 'ELECTRONICS'];
+  
+  const contentsFilter = (value) => {
+	return contentsData.filter((item) => {
+	  return item.toLowerCase().startsWith(value.toLowerCase());
+	});
+  };
+
+  new mdb.Autocomplete(contentsAutocomplete, {
+	filter: contentsFilter
+  });
+  
+  const packageAutocomplete = document.querySelector('#package');
+  const packageData = ['CARTON BOX', 'PALLET', 'ENVELOPE', 'BAG', 'BOX', 'FOIL'];
+  
+  const packageFilter = (value) => {
+	return packageData.filter((item) => {
+	  return item.toLowerCase().startsWith(value.toLowerCase());
+	});
+  };
+
+  new mdb.Autocomplete(packageAutocomplete, {
+	filter: packageFilter
+  });
+});
+
+
+</script>
+{{ footer }} 

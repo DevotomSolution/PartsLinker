@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html dir="{{ direction }}" lang="{{ lang }}">
+<head>
+<meta charset="UTF-8" />
+<title>{{ title }}</title>
+<base href="{{ base }}" />
+<link rel="stylesheet" href="view/css/mdb.min.css" />
+</head>
+<body>
+<div class="container">
+  {% for order in orders %}
+  <div style="page-break-after: always;">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <td><b>{{ text_invoice }} #{{ order.invoice_no }}</b><b style="float: right;">{{ text_order }}</b></td>
+          <td><b style="float: right;">{{ text_date_added }} {{ order.date_added }}</b></td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="width: 50%;"><address>
+            <h2 class="fs-5">{{ order.store_name }}</h2>
+            {{ order.store_address }}
+            </address>
+			{% if order.store_telephone %}
+            <b>{{ text_telephone }}</b> {{ order.store_telephone }}<br/>
+			{% endif %}
+            {% if order.store_vat %}
+            <b>{{ text_vat }}</b> {{ order.store_vat }}<br/>
+            {% endif %}
+			{% if order.store_email %}
+            <b>{{ text_email }}</b> {{ order.store_email }}<br/>
+			{% endif %}
+			{% if order.store_url %}
+            <b>{{ text_website }}</b> <a href="{{ order.store_url }}">{{ order.store_url }}</a></td>
+			{% endif %}
+          <td style="width: 50%;">
+			<h2 class="fs-5">{{ text_shipping_address }}</h2>
+		    <address>{{ order.shipping_address }}</address>
+		  </td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <td><b>{{ column_product }}</b></td>
+          <td class="text-end"><b>{{ column_quantity }}</b></td>
+          <td class="text-end"><b>{{ column_price }}</b></td>
+          <td class="text-end"><b>{{ column_total }}</b></td>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in order.product %}
+        <tr>
+          <td>{{ product.name }}
+          <td class="text-end">{{ product.quantity }}</td>
+          <td class="text-end">{{ product.price }}</td>
+          <td class="text-end">{{ product.total }}</td>
+        </tr>
+        {% endfor %}
+        {% for total in order.total %}
+        <tr>
+          <td class="text-end" colspan="3"><b>{{ total.title }}</b></td>
+          <td class="text-end">{{ total.text }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if order.comment %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <td><b>{{ text_comment }}</b></td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ order.comment }}</td>
+        </tr>
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+</body>
+</html>

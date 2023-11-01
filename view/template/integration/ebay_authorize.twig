@@ -1,0 +1,67 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+  <div class="text-end">
+	<span class="btn btn-link text-dark" data-mdb-ripple-color="dark"><i class="fas fa-user-circle me-2"></i>{{ text_authorize }}</span>
+	<a href="{{ setting }}" class="btn btn-link" data-mdb-ripple-color="dark"><i class="fas fa-tools me-2"></i>{{ text_setting }}</a>
+	<a href="{{ home }}" class="btn btn-link" data-mdb-ripple-color="dark"><i class="fas fa-home me-2"></i>{{ text_home }}</a>
+  </div>
+  {% if error_warning %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle me-2"></i>{{ error_warning }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  {% if success %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle me-2"></i>{{ success }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button> </div>
+  {% endif %}
+  <div class="mt-4">
+	<div class="col-12 col-lg-6" style="margin: 0 auto;">
+	  <form method="POST" action="{{ action }}">
+		  <h3 class="text-center">{{ text_authorize }}</h3>
+		  <div class="form-outline mt-4">
+			<input type="text" id="input-app_id" name="app_id" value="{{ app_id }}" class="form-control" />
+			<label class="form-label" for="input-app_id">{{ entry_app_id }}</label>
+		  </div>
+		  <div class="form-outline mt-4">
+			<input type="text" id="input-cert_id" name="cert_id" value="{{ cert_id }}" class="form-control" />
+			<label class="form-label" for="input-cert_id">{{ entry_cert_id }}</label>
+		  </div>
+		  <div class="form-outline mt-4">
+			<input type="text" id="input-ru_name" name="ru_name" value="{{ ru_name }}" class="form-control" />
+			<label class="form-label" for="input-ru_name">{{ entry_ru_name }}</label>
+		  </div>
+		  <div class="alert mt-4" role="alert" data-mdb-color="primary">
+			<i class="fas fa-info-circle me-1"></i>{{ text_ru_name_url }} 
+			<b id="ru_name-link">{{ ru_name_url }}</b> 
+			<button type="button" class="btn btn-primary btn-sm btn-floating" onclick="copy(this);"><i class="fas fa-copy text-light"></i></button>
+		  </div>
+		  <div class="text-center mt-4">
+			<div class="form-check form-check-inline">
+			  <input class="form-check-input" type="radio" name="sandbox" value="0" id="sandbox0" {% if sandbox == 0 %}checked{% endif %}/>
+			  <label class="form-check-label" for="sandbox0">{{ text_production }}</label>
+			</div>
+			<div class="form-check form-check-inline">
+			  <input class="form-check-input" type="radio" name="sandbox" value="1" id="sandbox1" {% if sandbox == 1 %}checked{% endif %}/>
+			  <label class="form-check-label" for="sandbox1">{{ text_sandbox }}</label>
+			</div>
+		  </div>
+		  <button type="submit" class="btn btn-primary btn-lg btn-block mt-4 mb-3">{{ text_authorize }}</button>
+	  </form>
+	</div>
+  </div>
+</div>
+</main>
+<script>
+function copy(e) {
+  e.innerHTML = "<i class='fas fa-check text-light'></i>";
+	
+  let copyText = document.getElementById('ru_name-link').innerText;
+  let el = document.createElement('textarea');
+  el.value = copyText;
+  el.style.position = 'absolute';
+  el.style.opacity = '0';
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+}
+</script>
+{{ footer }} 

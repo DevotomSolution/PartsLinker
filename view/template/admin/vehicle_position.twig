@@ -1,0 +1,68 @@
+{{ header }}{{ navigation }}
+<!--Main layout-->
+<main style="margin-top: 58px" class="pt-3">
+  <div class="container-fluid">
+	{% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-position="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% if success %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-position="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% for language in languages %}
+	<div class="form-outline mb-2">
+	  <img src="{{ server }}language/{{ language.code }}/{{ language.code }}.png" class="trailing"/>
+	  <input type="text" name="position_description[{{ language.language_id }}]" id="position_description-{{ language.language_id }}" class="form-control" />
+	  <label class="form-label" for="position_description-{{ language.language_id }}">{{ text_position }}</label>
+	</div>
+	{% endfor %}
+	<div class="text-end"><button type="button" id="add" class="btn btn-primary"><i class="fas fa-plus me-2"></i>{{ button_add }}</button></div>
+	<div id="positions" class="mt-3">
+	  {% for position in vehicle_positions %}
+	  <div class="chip me-0">{{ position.text }}<i id="{{ position.vehicle_position_id }}" class="close fas fa-times"></i></div>
+	  {% endfor%}
+	</div>
+  </div>
+</main>
+<script>
+closeInit();
+
+$('#add').click(function() {
+  let data = {position_description: {}};
+
+  {% for language in languages %}
+  data.position_description[{{ language.language_id }}] = $('#position_description-{{ language.language_id }}').val();
+  {% endfor %}
+
+  $.ajax({  
+	url: '{{ server }}index.php?route=admin/vehicle/position.add&user_token={{ user_token }}',
+	method: 'POST',
+	data: data,
+	dataType: 'json'
+  }).done(function(json) {
+    if(json['position_id'] !== undefined) {
+	  $('#positions').append('<div class="chip me-0">'+json['text']+'<i id="'+json['position_id']+'" class="close fas fa-times"></i></div>');
+	  
+	  {% for language in languages %}
+	  $('#position_description-{{ language.language_id }}').val('');
+	  {% endfor %}
+	  
+	  closeInit();
+	}
+  });
+});
+
+function closeInit() {
+  $('.close').click(function(e) {
+	$.ajax({
+	  url: '{{ server }}index.php?route=admin/vehicle/position.remove&user_token={{ user_token }}&position_id=' + encodeURIComponent(e.target.id),
+	});
+	
+	e.target.parentElement.remove();
+  });
+}
+</script>
+{{ footer }}

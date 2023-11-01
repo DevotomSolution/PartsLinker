@@ -1,0 +1,111 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-3">
+<div class="container-fluid">
+  {% if error_warning %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+	  <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	</div>
+  {% endif %}
+  <div class="ps-3 pe-3">
+	<form action="{{ action }}" class="needs-validation" method="post" enctype="multipart/form-data" novalidate>
+	  <div class="row">
+		<div class="input-group input-group-lg justify-content-end pe-2">
+		  <span class="input-group-text text-warning fs-4 border-0">{{ text_sku }}</span>
+		  <input type="text" name="sku" class="form-control fs-4 text-warning" id="input-sku" maxlength="8" placeholder="{{ placeholder_sku }}" style="max-width: 175px;" value="{{ sku }}" {% if sku_disabled %}readonly{% endif %}/>
+		</div>
+	  </div>
+	  <div class="row">
+		<div class="col-sm-6 col-12 pe-2 p-0 mt-3">
+		  <div class="form-outline">
+			<input type="text" name="mpn" value="{{ mpn }}" class="form-control mb-0" required/>
+			<label class="form-label">{{ entry_mpn }}</label>
+		  </div>
+		</div>
+		<div class="col-sm-6 col-12 pe-2 p-0 mt-3">
+		  <div id="brand" class="form-outline">
+			<input type="text" name="brand" value="{{ brand }}" class="form-control mb-0" required/>
+			<label class="form-label">{{ entry_manufacturer }}</label>
+		  </div>
+		</div>
+	  </div>
+	  <div class="row">
+		<div class="p-0 pe-2 col-sm-4 col-12 mt-3"><div class="form-outline">
+		  <input type="number" name="price" value="{{ price }}" class="form-control mb-0" required/>
+		  <label class="form-label">{{ entry_price }}</label>
+		</div></div>
+		<div class="p-0 pe-2 col-sm-4 col-12 mt-3"><div class="form-outline">
+		  <input type="number" name="quantity" value="{{ quantity }}" class="form-control mb-0" required/>
+		  <label class="form-label">{{ entry_quantity }}</label>
+		</div></div>
+		<div class="p-0 pe-2 col-sm-4 col-12 mt-3"><div class="form-group">
+		  <select class="select" name="used" class="form-control">
+			<option value="1" {% if used == '1' %}selected{% endif %}>{{ text_used }}</option>
+			<option value="0" {% if used == '0' %}selected{% endif %}>{{ text_new }}</option>
+		  </select>
+		  <label class="form-label select-label">{{ select_quality }}</label>
+		</div></div>
+	  </div>
+	  <div class="row">
+		<div class="p-0 pe-2 col-sm-4 col-12 mt-3"><div class="form-outline">
+		  <input type="number" name="delivery" value="{{ delivery }}" class="form-control mb-0" required/>
+		  <label class="form-label">{{ entry_delivery }}</label>
+		</div></div>
+		<div class="p-0 pe-2 col-sm-4 col-12 mt-3"><div class="form-outline">
+		  <input type="text" name="location" value="{{ location }}" class="form-control mb-0"/>
+		  <label class="form-label">{{ entry_location }}</label>
+		</div></div>
+		<div class="p-0 pe-2 col-sm-4 col-12 mt-3">
+		  <button type="submit" class="btn btn-primary w-100"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+		</div>
+	  </div>
+	</form>
+	<div class="row mt-3">
+	  <div class="p-0"><a href="{{ cancel }}" class="btn btn-default"><i class="fa fa-reply me-2"></i>{{ button_cancel }}</a></div>
+	</div>
+  </div>
+</div>
+</main>
+<script>
+$(document).ready(function() { 
+  const dataBrands = [
+	{% for brand in all_brands %}
+	"{{ brand.name }}",
+	{% endfor %}
+  ];
+  
+  const dataFilterBrands = (value) => {
+	return dataBrands.filter((item) => {
+	  return item.toLowerCase().startsWith(value.toLowerCase());
+	});
+  };
+
+  $('#brand').autocomplete({
+	filter: dataFilterBrands,
+	noResults: ''
+  });
+});
+
+const forms = document.querySelectorAll('.needs-validation');
+
+Array.prototype.slice.call(forms).forEach((form) => {
+  form.addEventListener('submit', (event) => {
+	if (!form.checkValidity()) {
+	  event.preventDefault();
+	  event.stopPropagation();
+	}
+	form.classList.add('was-validated');
+  }, false);
+});
+
+$('#input-sku').change(function(event) {
+  if(event.target.value.length < 5 || event.target.value.length > 7) {
+	event.target.classList.add('text-danger');
+	event.target.focus();
+  } else {
+	event.target.classList.remove('text-danger');
+  }
+  
+  productDescriptionInit();
+});
+</script>
+{{ footer }} 

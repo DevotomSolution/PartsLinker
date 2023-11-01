@@ -1,0 +1,68 @@
+{{ header }}{{ navigation }}
+<main style="margin-top: 58px" class="pt-4">
+<div class="container-fluid">
+  <div class="text-end mb-3">
+	<span class="btn btn-link text-dark" data-mdb-ripple-color="dark"><i class="fas fa-link me-2"></i>{{ text_connect }}</span>
+	<a href="{{ setting }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-tools me-2"></i>{{ text_setting }}</a>
+	<a href="{{ home }}" class="btn btn-link " data-mdb-ripple-color="dark"><i class="fas fa-home me-2"></i>{{ text_home }}</a>
+  </div>
+  {% if error_warning %}
+  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle me-2"></i>{{ error_warning }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  {% if success %}
+	<div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle me-2"></i>{{ success }}<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button></div>
+  {% endif %}
+  <form method="POST" action="{{ action }}">
+	<div class="mt-3">
+	  <div class="form-outline">
+		<input type="text" name="website" value="{{ website }}" class="form-control"/>
+		<label class="form-label">{{ entry_website }}</label>
+	  </div>
+	</div>
+	<div class="mt-3">
+	  <select class="select" name="version">
+		<option value="3" {% if version == 3 %}selected{% endif %}>OC 3</option>
+	  </select>
+	  <label class="form-label select-label">{{ select_version }}</label>
+	</div>
+	<div class="mt-3">
+	  <div class="form-outline">
+		<input type="text" name="username" value="{{ username }}" class="form-control"/>
+		<label class="form-label">{{ entry_username }}</label>
+	  </div>
+	</div>
+	<div class="mt-3">
+	  <div class="form-outline">
+		<textarea name="key" class="form-control">{{ key }}</textarea>
+		<label class="form-label">{{ entry_key }}</label>
+	  </div>
+	</div>
+	<div class="alert mt-3" role="alert" data-mdb-color="primary">
+	  <i class="fas fa-info-circle me-1"></i>{{ text_ip }} 
+	  <b id="ip">{{ ip }}</b> 
+	  <button type="button" class="btn btn-primary btn-sm btn-floating" onclick="copy(this);"><i class="fas fa-copy text-light"></i></button>
+	</div>
+	<div class="d-flex mt-3">
+	  <a class="chip chip-md" data-mdb-toggle="tooltip" title="{{ tooltip_download_api_oc3 }}" href="{{ server }}storage/download/plapioc3x.ocmod.zip" download><img src="{{ server }}view/img/winrar.jpg" />{{ text_download_api_oc3 }}</a>
+	  <a class="chip chip-md" href="https://www.opencart.com/index.php?route=onlineshop/extension/info&extension_id=40663" target="blanc"><img src="{{ server }}view/img/winrar.jpg" />{{ text_download_localcopy }}</a>
+	</div>
+	<button type="submit" class="btn btn-primary ps-5 pe-5 mt-3 mb-3"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+  </form>
+</div>
+</main>
+<script>
+function copy(e) {
+  e.innerHTML = "<i class='fas fa-check text-light'></i>";
+	
+  let copyText = document.getElementById('ip').innerText;
+  let el = document.createElement('textarea');
+  el.value = copyText;
+  el.style.position = 'absolute';
+  el.style.opacity = '0';
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+}
+</script>
+{{ footer }} 

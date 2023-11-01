@@ -1,0 +1,479 @@
+.fs-7 {
+	font-size: 14px;
+	line-height: 16px;
+}
+
+.fs-8 {
+	font-size: 12px;
+	line-height: 13px;
+}
+
+.nowrap {
+	white-space: nowrap;
+}
+
+main {
+	background-color: hsl(0, 0%, 98%);
+}
+
+.form-control {
+	background-color: #fbfbfb !important;
+}
+
+@media(min-width:992px){
+	.me-lg-4-5 {
+		margin-right: 2.5rem!important;
+	}
+}
+
+.bg-opacity-35 {
+	--mdb-bg-opacity: 0.35;
+}
+
+@media (min-width: 1400px) {
+  main,
+  header,
+  #main-navbar {
+    padding-left: 240px;
+  }
+}
+
+.form-outline .dropdown-menu li a {
+	padding-left: 5px;
+}
+
+.table {
+	vertical-align: middle;
+}
+
+.bg-hover-light-dark:hover {
+	background-color: rgb(0, 0, 0, 0.05);
+}
+
+#sidenav .sidenav-link i {
+    color: inherit;
+}
+
+.hide {
+	display: none !important;
+}
+
+@media(max-width:992px) {
+	.form-control, .btn:not(.input-group .btn), .dropdown-menu li {
+		line-height: 2 !important;
+	}
+
+	.form-control.active~.form-label, .form-control:focus~.form-label {
+		transform: translateY(-1.2rem) translateY(0.1rem) scale(.8);
+	}
+
+	.form-control~.form-label {
+		padding-top: 0.5rem !important;
+	}
+
+	.select-arrow {
+		margin-top: 0.2rem !important;
+	}
+}
+
+
+.dropzone {
+	position: relative;
+	overflow: hidden;
+	min-height: 50px;
+	transition: background-color 0.3s;
+}
+
+.dropzone:hover {
+	background-color: rgb(0, 0, 0, 0.05);
+}
+
+.dropzone #selectfile {
+	display: none;
+}
+
+.dropzone-body {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.dropzone .dropzone-image, .dropzone .add-dropzone-image, .dropzone .add-dropzone-video {
+	width: 100px;
+	height: 100px;
+	position: relative;
+	background-position: center;
+	background-size: cover;
+}
+
+.dropzone-image, .dropzone-video, .dropzone .add-dropzone-image, .dropzone .add-dropzone-video {
+	cursor: pointer;
+}
+
+.dropzone .dropzone-video, .dropzone .dropzone-video video {
+	position: relative;
+	height: 100px;
+}
+
+.dropzone .dropzone-image .fa-minus-circle, .dropzone .dropzone-video .fa-minus-circle {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: white;
+	opacity: 0.7;
+	cursor: pointer;
+}
+
+.dropzone .dropzone-image .fa-fast-backward {
+	position: absolute;
+	top: 0;
+	right: 24px;
+	background-color: white;
+	opacity: 0.7;
+	cursor: pointer;
+}
+
+.dropmsg {
+	display: none;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	z-index: 1000;
+}
+
+/* homepage */
+.PleftBlock{
+	width: 100%;
+}
+.PInfoBlock{
+	background-image: url('/view/img/infoblockimg.png');
+	background-position: 50%;
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+.PLeftInner, .PRightInner{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 40px;
+}
+.PlPanel{
+   box-shadow: 0 2px 2px 0 rgba(115,125,136,.32),0 1px 17px -3px rgba(115,125,136,.3),0 1px 5px 0 rgba(115,125,136,.07);
+   height: 130px;
+	width: 100%;
+}
+.PlInnerBlock{
+	margin-top: 40px !important;
+}
+.PlInnerBlock div{
+	border-radius: 6px;
+}
+.PLBlocksBelow{
+	height: 420px;
+}
+div.PlUpperBlock{
+	height: 72px;
+	border-radius: 4px 4px 0px 0px;
+	padding: 10px;
+}
+div.PlTitleBlock1{
+	border-bottom: 1px solid #cccccc;
+}
+div.PlTitleBlock2{
+	background-color: #3190C9;
+	color: #ffffff;
+
+}
+
+
+/* Charts */
+
+body {
+	background: #643a7a;
+ }
+
+ .PLframe {
+	/* position: absolute;
+	top: 50%;
+	left: 50%; */
+	/* width: 400px;
+	height: 400px; */
+	/* margin-top: -200px;
+	margin-left: -200px; */
+	border-radius: 2px;
+	/* box-shadow: 0.5rem 0.5rem 1rem rgba(0, 0, 0, 0.6); */
+	/* background: #201c29; */
+	font-family: "Zilla Slab", serif;
+	color: #fff;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+ }
+
+ .PLcard {
+	/* position: absolute;
+	top: 90px;
+	left: 60px; */
+	width: 280px;
+	background: #fff;
+	border-radius: 5px;
+	/* box-shadow: 0.5rem 0.5rem 1rem rgba(0, 0, 0, 0.6); */
+	overflow: hidden;
+	padding-bottom: 10px;
+	width: 100%;
+ }
+ .PLcard .header {
+	position: relative;
+	height: 60px;
+	width: 100%;
+	background: #643a7a;
+	color: #fff;
+ }
+ .PLcard .header .big {
+	position: absolute;
+	font-family: Satisfy, fantasy;
+	font-size: 1.5rem;
+ }
+ .PLcard .header .small {
+	position: absolute;
+	font-size: 1rem;
+ }
+ .PLcard .header .title {
+	top: 12px;
+	left: 15px;
+ }
+ .PLcard .header .date {
+	top: 2.5rem;
+	left: 15px;
+ }
+ .PLcard .header .type {
+	top: 14px;
+	right: 15px;
+ }
+ .PLcard .header .value {
+	position: absolute;
+	font-size: 1.5rem;
+	top: 2rem;
+	right: 15px;
+ }
+ .PLcard .parameter {
+	text-align: right;
+	padding: 5px 0 5px 0;
+ }
+ .PLcard .parameter span {
+	position: relative;
+	font-size: 0.85rem;
+	color: #606060;
+	line-height: 13px;
+	padding: 0 10px 0 25px;
+ }
+ .PLcard .parameter span:before {
+	position: absolute;
+	left: 6px;
+	top: 6px;
+	display: block;
+	content: "";
+	width: 11px;
+	height: 4px;
+	border-radius: 3px;
+ }
+ .PLcard .parameter .red:before {
+	background: #643a7a;
+ }
+ .PLcard .parameter .blue:before {
+	background: #547496;
+ }
+ .PLcard .statistic {
+	position: relative;
+	height: 81px;
+	width: 100%;
+ }
+ .PLcard .statistic .line-1, .PLcard .statistic .line-3, .PLcard .statistic .line-2 {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: rgba(255, 192, 203, 0.3);
+ }
+ .PLcard .statistic .line-2 {
+	top: 40px;
+ }
+ .PLcard .statistic .line-3 {
+	top: inherit;
+	bottom: 0;
+ }
+ .PLcard .statistic .data svg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	stroke-dasharray: 1000;
+	stroke-dashoffset: 1000;
+	-webkit-animation: 4s dash 0.5s linear forwards;
+			  animation: 4s dash 0.5s linear forwards;
+ }
+ @-webkit-keyframes dash {
+	to {
+	  stroke-dashoffset: 0;
+	}
+ }
+ @keyframes dash {
+	to {
+	  stroke-dashoffset: 0;
+	}
+ }
+ .PLcard .statistic .data polyline {
+	fill: none;
+	stroke-width: 2;
+	stroke-linecap: round;
+ }
+ .PLcard .statistic .data.red polyline {
+	stroke: #643a7a;
+ }
+ .PLcard .statistic .data.blue polyline {
+	stroke: #547496;
+ }
+ .PLcard .statistic .data .tooltip {
+	position: absolute;
+	bottom: 13px;
+	left: 50%;
+	transform: translate3d(-50%, 10px, 0);
+	font-weight: 600;
+	font-size: 11px;
+	line-height: 11px;
+	color: #fff;
+	padding: 8px 6px;
+	border-radius: 3px;
+	visibility: hidden;
+	opacity: 0;
+	transition: transform 0.4s ease-out 0s, opacity 0.4s ease-out 0s;
+ }
+ .PLcard .statistic .data .tooltip:after {
+	position: absolute;
+	display: block;
+	content: "";
+	height: 6px;
+	width: 6px;
+	left: 50%;
+	margin-left: -3px;
+	bottom: -3px;
+	transform: rotate(45deg);
+ }
+ .PLcard .statistic .data [class^=point-] {
+	position: absolute;
+	width: 6px;
+	height: 6px;
+	border-radius: 3px;
+	cursor: pointer;
+	z-index: 10;
+ }
+ .PLcard .statistic .data [class^=point-]:hover .tooltip {
+	visibility: visible;
+	opacity: 1;
+	transform: translate3d(-50%, 0, 0);
+ }
+ .PLcard .statistic .data.red [class^=point-],
+ .PLcard .statistic .data.red .tooltip,
+ .PLcard .statistic .data.red .tooltip:after {
+	background: #643a7a;
+ }
+ .PLcard .statistic .data.red .point-1 {
+	left: 7px;
+	top: 43px;
+ }
+ .PLcard .statistic .data.red .point-2 {
+	left: 48px;
+	top: 9px;
+ }
+ .PLcard .statistic .data.red .point-3 {
+	left: 88px;
+	top: 20px;
+ }
+ .PLcard .statistic .data.red .point-4 {
+	left: 128px;
+	top: 8px;
+ }
+ .PLcard .statistic .data.red .point-5 {
+	left: 169px;
+	top: 35px;
+ }
+ .PLcard .statistic .data.red .point-6 {
+	left: 209px;
+	top: 45px;
+ }
+ .PLcard .statistic .data.red .point-7 {
+	left: 249px;
+	top: 16px;
+ }
+ .PLcard .statistic .data.blue [class^=point-],
+ .PLcard .statistic .data.blue .tooltip,
+ .PLcard .statistic .data.blue .tooltip:after {
+	background: #547496;
+ }
+ .PLcard .statistic .data.blue .point-1 {
+	left: 7px;
+	top: 58px;
+ }
+ .PLcard .statistic .data.blue .point-2 {
+	left: 48px;
+	top: 47px;
+ }
+ .PLcard .statistic .data.blue .point-3 {
+	left: 88px;
+	top: 62px;
+ }
+ .PLcard .statistic .data.blue .point-4 {
+	left: 128px;
+	top: 52px;
+ }
+ .PLcard .statistic .data.blue .point-5 {
+	left: 169px;
+	top: 58px;
+ }
+ .PLcard .statistic .data.blue .point-6 {
+	left: 209px;
+	top: 71px;
+ }
+ .PLcard .statistic .data.blue .point-7 {
+	left: 249px;
+	top: 61px;
+ }
+ .PLcard .days {
+	width: 280px;
+	margin: 0 auto;
+ }
+ .PLcard .days .day {
+	display: block;
+	float: left;
+	width: 14.2857142857%;
+	font-size: 9px;
+	color: #949494;
+	line-height: 30px;
+	text-transform: uppercase;
+	text-align: center;
+ }
+
+
+/* End Charts */
+
+
+
+
+@media(max-width:992px){
+	.dropzone-body {
+		justify-content: center;
+	}
+
+	.dropzone .dropzone-image, .dropzone .add-dropzone-image, .dropzone .add-dropzone-video {
+		width: 85px;
+		height: 85px;
+	}
+
+	.dropzone .dropzone-video, .dropzone .dropzone-video video {
+		height: 85px;
+	}
+}

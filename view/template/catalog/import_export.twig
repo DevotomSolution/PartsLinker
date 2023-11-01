@@ -1,0 +1,615 @@
+{{ header }}{{ navigation }}
+<!--Main layout-->
+<main style="margin-top: 58px" class="pt-3">
+  <div class="container-fluid">
+	{% if error_warning %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	{% if success %}
+	  <div class="alert alert-dismissible fade show" role="alert" data-mdb-color="success"><i class="fa fa-exclamation-circle"></i> {{ success }}
+		<button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}
+	<ul class="nav nav-tabs mb-3" id="navtabs" role="tablist">
+	  <li class="nav-item" role="presentation">
+		<a class="nav-link active" id="navtabs-tab-import" data-mdb-toggle="tab" href="#navtabs-tabs-import" role="tab" aria-controls="navtabs-tabs-import" aria-selected="true">{{ tab_import }}</a>
+	  </li>
+	  <li class="nav-item" role="presentation">
+		<a class="nav-link" id="navtabs-tab-export" data-mdb-toggle="tab" href="#navtabs-tabs-export" role="tab" aria-controls="navtabs-tabs-export" aria-selected="false">{{ tab_export }}</a>
+	  </li>
+	  <li class="nav-item" role="presentation">
+		<a class="nav-link" id="navtabs-tab-backup" data-mdb-toggle="tab" href="#navtabs-tabs-backup" role="tab" aria-controls="navtabs-tabs-backup" aria-selected="false">{{ tab_backup }}</a>
+	  </li>
+	</ul>
+	<div class="tab-content" id="navtabs-content">
+	  <div class="tab-pane fade show active" id="navtabs-tabs-import" role="tabpanel" aria-labelledby="navtabs-tab-import">
+		<div class="mb-3">
+		  <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#upload-modal"><i class="fas fa-upload me-2"></i>{{ text_upload_csv }}</button>
+		  {% if import_total %}<button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#example-modal"><i class="far fa-eye me-2"></i>{{ text_csv_preview }}</button>{% endif %}
+		</div>
+		<div class="modal fade" id="upload-modal" tabindex="-1" aria-labelledby="upload-modal-label" aria-hidden="true">
+		  <div class="modal-dialog modal-xl">
+			<div class="modal-content">
+			  <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-import" class="form-horizontal mb-3">
+			  <div class="modal-header">
+				<h5 class="modal-title" id="upload-modal-label">{{ text_upload_csv }}</h5>
+				<button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="{{ button_close }}"></button>
+			  </div>
+			  <div class="modal-body">
+				<div class="alert" role="alert" data-mdb-color="primary"><i class="fas fa-info-circle me-3"></i>{{ alert_charset }}</div>
+				<div class="mb-3">
+				  <label class="form-label" for="input-import_csv_list">{{ text_select_csv }}</label>
+				  <input type="file" name="import_csv_list" class="form-control" accept=".csv" id="input-import_csv_list"/>
+				</div>
+				<div>
+				  <select class="select" name="import_csv_separator">
+					<option value="coma">,</option>
+					<option value="coma_point">;</option>
+					<option value="tab">tab</option>
+				  </select>
+				  <label class="form-label select-label">{{ text_select_csv_separator }}</label>
+				</div>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">{{ button_close }}</button>
+				<button type="submit" class="btn btn-primary" onclick="loading();"><i class="fa fa-save me-2"></i>{{ button_save }}</button>
+			  </div>
+			  </form>
+			</div>
+		  </div>
+		</div>
+		{% if import_total %}
+		<div class="modal fade" id="example-modal" tabindex="-1" aria-labelledby="example-modal-label" aria-hidden="true">
+		  <div class="modal-dialog modal-xl">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h5 class="modal-title" id="example-modal-label">{{ text_csv_preview }}</h5>
+				<button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="{{ button_close }}"></button>
+			  </div>
+			  <div class="modal-body overflow-auto">
+				<table class="table table-bordered">
+				  <tbody>
+					{% for values in import_csv_values %}
+					<tr>
+					  {% for csv_value in values %}
+					  <td>{{ csv_value.value }}</td>
+					  {% endfor %}
+					</tr>
+					{% endfor %}
+				  </tbody>
+				</table>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">{{ button_close }}</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+		<div class="mb-3">
+		  <select class="select" id="import-product_name" name="product_name">
+			<option value=""></option>
+			{% for csv_value in import_csv_values.0 %}
+			<option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			{% endfor %}
+		  </select>
+		  <label class="form-label select-label">{{ text_product_name }}</label>
+		</div>
+		<div class="mb-3">
+		  <select class="select" id="import-product_description" name="product_description">
+			<option value=""></option>
+			{% for csv_value in import_csv_values.0 %}
+			<option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			{% endfor %}
+		  </select>
+		  <label class="form-label select-label">{{ text_product_description }}</label>
+		</div>
+		<div class="mb-3">
+		  <select class="select" id="import-price" name="price">
+			<option value=""></option>
+			{% for csv_value in import_csv_values.0 %}
+			<option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			{% endfor %}
+		  </select>
+		  <label class="form-label select-label">{{ text_price }}</label>
+		</div>
+		<div class="mb-3">
+		  <select class="select" id="import-currency" name="currency">
+			{% for currency in currencies %}
+			<option value="{{ currency.code }}">{{ currency.code }} {{ text_for_all_products }}</option>
+			{% endfor %}
+			{% for csv_value in import_csv_values.0 %}
+			<option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			{% endfor %}
+		  </select>
+		  <label class="form-label select-label">{{ text_currency }}</label>
+		</div>
+		<div class="mb-3">
+		  <select class="select" id="import-quantity" name="quantity">
+			<option value=""></option>
+			{% for csv_value in import_csv_values.0 %}
+			<option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			{% endfor %}
+		  </select>
+		  <label class="form-label select-label">{{ text_quantity }}</label>
+		</div>
+		<div class="mb-3">
+		  <select class="select" id="import-quality" name="quality">
+			<option value="new">{{ text_quality_new }} {{ text_for_all_products }}</option>
+			<option value="used">{{ text_quality_used }} {{ text_for_all_products }}</option>
+			{% for csv_value in import_csv_values.0 %}
+			<option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			{% endfor %}
+		  </select>
+		  <label class="form-label select-label">{{ text_quality }}</label>
+		</div>
+		<div class="mb-3">
+		  <select class="select" id="import-product_image" name="product_image">
+			<option value=""></option>
+			{% for csv_value in import_csv_values.0 %}
+			<option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			{% endfor %}
+		  </select>
+		  <label class="form-label select-label">{{ text_product_image }}</label>
+		</div>
+		<div class="form-outline mb-3">
+		  <input type="text" id="import-product_image_separator" name="product_image_separator" class="form-control" />
+		  <label class="form-label" for="input-product_image_separator">{{ text_product_image_separator }}</label>
+		</div>
+		<div class="mb-3">
+			<select class="select" id="import-sku" name="sku">
+			  <option value=""></option>
+			  {% for csv_value in import_csv_values.0 %}
+			  <option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			  {% endfor %}
+			</select>
+			<label class="form-label select-label">{{ text_sku }}</label>
+		</div>
+		<button class="btn btn-primary" type="button" data-mdb-toggle="collapse" data-mdb-target="#collapse" aria-expanded="false" aria-controls="collapse">{{ button_more }}</button>
+		<div class="collapse mt-3" id="collapse">
+		  <div class="mb-3">
+			<select class="select" id="import-product_category" name="product_category">
+			  <option value=""></option>
+			  {% for csv_value in import_csv_values.0 %}
+			  <option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			  {% endfor %}
+			</select>
+			<label class="form-label select-label">{{ text_product_category }}</label>
+		  </div>
+		  <div class="mb-3">
+			<select class="select" id="import-product_vehicle" name="product_vehicle">
+			  <option value=""></option>
+			  {% for csv_value in import_csv_values.0 %}
+			  <option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			  {% endfor %}
+			</select>
+			<label class="form-label select-label">{{ text_product_vehicle }}</label>
+		  </div>
+		  <div class="mb-3">
+			<select class="select" id="import-brand" name="brand">
+			  <option value=""></option>
+			  {% for csv_value in import_csv_values.0 %}
+			  <option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			  {% endfor %}
+			</select>
+			<label class="form-label select-label">{{ text_brand }}</label>
+		  </div>
+		  <div class="mb-3">
+			<select class="select" id="import-mpn" name="mpn">
+			  <option value=""></option>
+			  {% for csv_value in import_csv_values.0 %}
+			  <option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			  {% endfor %}
+			</select>
+			<label class="form-label select-label">{{ text_mpn }}</label>
+		  </div>
+		  <div class="mb-3">
+			<select class="select" id="import-oe" name="oe">
+			  <option value=""></option>
+			  {% for csv_value in import_csv_values.0 %}
+			  <option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			  {% endfor %}
+			</select>
+			<label class="form-label select-label">{{ text_oe }}</label>
+		  </div>
+		  <div class="mb-3">
+			<select class="select" id="import-others" name="others">
+			  <option value=""></option>
+			  {% for csv_value in import_csv_values.0 %}
+			  <option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			  {% endfor %}
+			</select>
+			<label class="form-label select-label">{{ text_others }}</label>
+		  </div>
+		  <div class="mb-3">
+			<select class="select" id="import-weight" name="weight">
+			  <option value=""></option>
+			  {% for csv_value in import_csv_values.0 %}
+			  <option value="{{ csv_value.key }}">{{ csv_value.value }}</option>
+			  {% endfor %}
+			</select>
+			<label class="form-label select-label">{{ text_weight }}</label>
+		  </div>
+		</div>
+		<div class="input-group mt-3 mb-3">
+		  <span class="input-group-text border-0">{{ text_import_start_from }}</span>
+		  <input type="number" id="input-import-start" value="1" min="1" class="form-control rounded" />
+		  <span class="input-group-text border-0">/ {{ import_total }}</span>
+		  <button class="btn btn-primary rounded" type="button" id="btn-import" data-mdb-ripple-color="dark"><i class="fas fa-file-import me-2"></i>{{ button_import }}</button>
+		</div>
+		{% endif %}
+		<div class="row mb-3"><div class="col"><div id="history"></div></div></div>
+	  </div>
+	  <div class="tab-pane fade" id="navtabs-tabs-export" role="tabpanel" aria-labelledby="navtabs-tab-export">
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_sku }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-sku" value="1" checked/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_product_name }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-product_name" value="1" checked/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_product_description }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-product_description" value="1" checked/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_price }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-price" value="1" checked/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_currency }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-currency" value="1" checked/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_quantity }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-quantity" value="1" checked/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_quality }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-quality" value="1" checked/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_product_image }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-product_image" value="1" checked/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_product_category }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-product_category" value="1"/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_product_vehicle }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-product_vehicle" value="1"/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_brand }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-brand" value="1"/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_mpn }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-mpn" value="1"/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_oe }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-oe" value="1"/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_others }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-others" value="1"/></div>
+		</label>
+		<label class="d-flex cursor-pointer p-1">
+		  <div class="flex-fill">{{ text_weight }}</div>
+		  <div><input class="form-check-input" type="checkbox" id="export-weight" value="1"/></div>
+		</label>
+		<div class="mt-3 mb-3">
+		  <select class="select" id="export-csv_separator">
+			<option value="coma">,</option>
+			<option value="coma_point">;</option>
+			<option value="tab">tab</option>
+		  </select>
+		  <label class="form-label select-label">{{ text_select_csv_separator }}</label>
+		</div>
+		<button class="btn btn-primary mb-3" type="button" id="btn-export"><i class="fas fa-file-export me-2"></i>{{ button_export }}</button>
+	  </div>
+	  <div class="tab-pane fade" id="navtabs-tabs-backup" role="tabpanel" aria-labelledby="navtabs-tab-backup">
+		In progress...
+	  </div>
+	</div>
+  </div>
+</main>
+<script>
+$('#history').load('{{ server }}index.php?route=catalog/import_export.importHistory&user_token={{ user_token }}');
+
+const total = Number({{ import_total }});
+
+const importButtonHtml = $('#btn-import').html();
+
+function importStep(start = 0) {
+  let data = {};
+  data.product_name = $('#import-product_name').val();
+  data.product_description = $('#import-product_description').val();
+  data.price = $('#import-price').val();
+  data.currency = $('#import-currency').val();
+  data.quantity = $('#import-quantity').val();
+  data.quality = $('#import-quality').val();
+  data.product_image = $('#import-product_image').val();
+  data.product_image_separator = $('#import-product_image_separator').val();
+  data.sku = $('#import-sku').val();
+  data.product_category = $('#import-product_category').val();
+  data.product_vehicle = $('#import-product_vehicle').val();
+  data.brand = $('#import-brand').val();
+  data.mpn = $('#import-mpn').val();
+  data.oe = $('#import-oe').val();
+  data.others = $('#import-others').val();
+  data.weight = $('#import-weight').val();
+
+  $.ajax({
+    type: "POST",
+	url: '{{ server }}index.php?route=catalog/import_export.import&user_token={{ user_token }}&start=' + start,
+	data: data,
+	dataType: 'json',
+	success: function(json) {
+	  if (json['total'] === undefined) {
+		$('#btn-import').html(importButtonHtml);
+		return;
+	  }
+	  
+	  start = Number(start) + 20;
+	  
+	  if (start > total) {
+		start = total;
+	  }
+	
+	  $('#input-import-start').val(start);
+	
+	  if(json['total'] > 0 && start < total) {
+		importStep(start);
+		return;
+	  }
+	  
+	  document.location = '{{ action }}';
+	},
+	error: function () {
+	  addAlert('{{ text_import }}', '{{ text_aborted }}', 'danger');
+	   
+	  $('#history').load('{{ server }}index.php?route=catalog/import_export.importHistory&user_token={{ user_token }}');
+	
+	  $('#btn-import').html(importButtonHtml);
+	}
+  });
+}
+
+$('#btn-import').click(async function() {
+  $('#btn-import').addClass('disabled');
+  $('#btn-import').html('<div class="spinner-border spinner-border-sm me-1" role="status"></div>{{ text_loading }}');
+  
+  if ($('#import-product_name').val() == '') {
+    addAlert('{{ text_error }}', '{{ error_required_product_name }}', 'danger');
+	$('#btn-import').html(importButtonHtml);
+	$('#btn-import').removeClass('disabled');
+	return;
+  }
+  
+  if ($('#import-product_description').val() != '') {
+    if (await checkProductDescription() == false) {
+	  addAlert('{{ text_error }}', '{{ error_product_description }}', 'danger');
+	  $('#btn-import').html(importButtonHtml);
+	  $('#btn-import').removeClass('disabled');
+	  return;
+	}
+  }
+  
+  if ($('#import-price').val() == '') {
+    addAlert('{{ text_error }}', '{{ error_required_price }}', 'danger');
+	$('#btn-import').html(importButtonHtml);
+	$('#btn-import').removeClass('disabled');
+	return;
+  }
+  
+  if ($('#import-currency').val() == '') {
+    addAlert('{{ text_error }}', '{{ error_required_currency }}', 'danger');
+	$('#btn-import').html(importButtonHtml);
+	$('#btn-import').removeClass('disabled');
+	return;
+  }
+  
+  if (await checkCurrency() == false) {
+	addAlert('{{ text_error }}', '{{ error_currency }}', 'danger');
+	$('#btn-import').html(importButtonHtml);
+	$('#btn-import').removeClass('disabled');
+	return;
+  }
+  
+  if ($('#import-quantity').val() == '') {
+    addAlert('{{ text_error }}', '{{ error_required_quantity }}', 'danger');
+	$('#btn-import').html(importButtonHtml);
+	$('#btn-import').removeClass('disabled');
+	return;
+  }
+  
+  if ($('#import-quality').val() == '') {
+    addAlert('{{ text_error }}', '{{ error_required_quality }}', 'danger');
+	$('#btn-import').html(importButtonHtml);
+	$('#btn-import').removeClass('disabled');
+	return;
+  } 
+  
+  if (await checkQuality() == false) {
+	addAlert('{{ text_error }}', '{{ error_quality }}', 'danger');
+	$('#btn-import').html(importButtonHtml);
+	$('#btn-import').removeClass('disabled');
+	return;
+  }
+  
+  if ($('#import-product_image').val() == '') {
+    addAlert('{{ text_error }}', '{{ error_required_product_image }}', 'danger');
+	$('#btn-import').html(importButtonHtml);
+	$('#btn-import').removeClass('disabled');
+	return;
+  }
+  
+  if (await checkProductImage() == false) {
+	addAlert('{{ text_error }}', '{{ error_product_image }}', 'danger');
+	$('#btn-import').html(importButtonHtml);
+	$('#btn-import').removeClass('disabled');
+	return;
+  }
+  
+  if ($('#import-sku').val() != '') {
+    if (await checkSku() == false) {
+	  addAlert('{{ text_error }}', '{{ error_sku }}', 'danger');
+	  $('#btn-import').html(importButtonHtml);
+	  $('#btn-import').removeClass('disabled');
+	  return;
+	}
+  }
+
+  importStep($('#input-import-start').val());
+});
+
+async function checkQuality() {
+  let json = await $.ajax({
+	url: '{{ server }}index.php?route=catalog/import_export.checkQuality&user_token={{ user_token }}&quality=' + $('#import-quality').val(),
+	dataType: 'json',
+  });
+  
+  if (json.success === undefined || json.success == 0) {
+    return false;
+  } else {
+	return true;
+  }
+}
+
+async function checkCurrency() {
+  let json = await $.ajax({
+	url: '{{ server }}index.php?route=catalog/import_export.checkCurrency&user_token={{ user_token }}&currency=' + $('#import-currency').val(),
+	dataType: 'json',
+  });
+  
+  if (json.success === undefined || json.success == 0) {
+    return false;
+  } else {
+	return true;
+  }
+}
+
+async function checkSku() {
+  let json = await $.ajax({
+	url: '{{ server }}index.php?route=catalog/import_export.checkSku&user_token={{ user_token }}&sku=' + $('#import-sku').val(),
+	dataType: 'json',
+  });
+  
+  if (json.success === undefined || json.success == 0) {
+    return false;
+  } else {
+	return true;
+  }
+}
+
+async function checkProductDescription() {
+  let json = await $.ajax({
+	url: '{{ server }}index.php?route=catalog/import_export.checkProductDescription&user_token={{ user_token }}&product_description=' + $('#import-product_description').val(),
+	dataType: 'json',
+  });
+  
+  if (json.success === undefined || json.success == 0) {
+    return false;
+  } else {
+	return true;
+  }
+}
+
+async function checkProductImage() {
+  let data = {};
+  data.product_image = $('#import-product_image').val();
+  data.product_image_separator = $('#import-product_image_separator').val();
+  
+  let json = await $.ajax({
+	type: "POST",
+	url: '{{ server }}index.php?route=catalog/import_export.checkProductImage&user_token={{ user_token }}',
+	data: data,
+	dataType: 'json',
+  });
+  
+  if (json.success === undefined || json.success == 0) {
+    return false;
+  } else {
+	return true;
+  }
+}
+
+$('#btn-export').click(function() {
+  let url = '{{ server }}index.php?route=catalog/import_export.export&user_token={{ user_token }}';
+  
+  if ($('#export-product_name').is(":checked")) {
+	url += '&product_name=1';
+  }
+  
+  if ($('#export-product_description').is(":checked")) {
+	url += '&product_description=1';
+  }
+
+  if ($('#export-price').is(":checked")) {
+	url += '&price=1';
+  }
+  
+  if ($('#export-currency').is(":checked")) {
+	url += '&currency=1';
+  }
+
+  if ($('#export-quantity').is(":checked")) {
+	url += '&quantity=1';
+  }
+  
+  if ($('#export-quality').is(":checked")) {
+	url += '&quality=1';
+  }
+  
+  if ($('#export-product_image').is(":checked")) {
+	url += '&product_image=1';
+  }
+  
+  if ($('#export-sku').is(":checked")) {
+	url += '&sku=1';
+  }
+  
+  if ($('#export-product_category').is(":checked")) {
+	url += '&product_category=1';
+  }
+  
+  if ($('#export-product_vehicle').is(":checked")) {
+	url += '&product_vehicle=1';
+  }
+  
+  if ($('#export-brand').is(":checked")) {
+	url += '&brand=1';
+  }
+  
+  if ($('#export-mpn').is(":checked")) {
+	url += '&mpn=1';
+  }
+  
+  if ($('#export-oe').is(":checked")) {
+	url += '&oe=1';
+  }
+  
+  if ($('#export-others').is(":checked")) {
+	url += '&others=1';
+  }
+  
+  if ($('#export-weight').is(":checked")) {
+	url += '&weight=1';
+  }
+  
+  url += '&separator=' + $('#export-csv_separator').val();
+
+  window.open(url);
+});
+</script>
+<style>
+#navtabs-tabs-export label:hover {
+  background-color: rgb(0, 0, 0, 0.05);
+}
+</style>
+{{ footer }}

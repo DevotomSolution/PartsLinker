@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<style>
+#invoice-container {
+	height: 100vh;
+}
+</style>
+<html dir="{{ direction }}" lang="{{ lang }}">
+<head>
+<meta charset="UTF-8" />
+<title>{{ title }}</title>
+<base href="{{ base }}" />
+<link rel="stylesheet" href="view/css/mdb.min.css" />
+</head>
+<body>
+<div id="invoice-container" class="container-xxl d-flex flex-column">
+  <div class="row">
+	<div class="col-3 d-flex align-items-center justify-content-center">
+	  <img src="{{ logo }}" class="mw-100" />
+	</div>
+	<div class="col-9">
+	  <div class="row">
+		<div class="col">
+		  <h2>{{ store_name }}</h2>
+		  <hr class="mt-0 mb-2" />
+		  <p class="mb-0">{{ store_address }}</p>
+		  <p class="mb-0">{{ text_email }} {{ user_email }}</p>
+		  <p>{{ user_vat }}</p>
+		</div>
+	  </div>
+	</div>
+  </div>
+  <div class="row">
+	<div class="col-6"><hr/></div>
+	<div class="col-6 d-flex align-items-center justify-content-end">
+	  <span>{{ text_invoice_no }}</span>
+	  <div class="border ms-2 ps-2 pe-2 pt-1 pb-1"><strong>{{ invoice_no }}</strong></div>
+	  <span class="ms-2">{{ text_date }}</span>
+	  <div class="border ms-2 ps-2 pe-2 pt-1 pb-1"><strong>{{ date_added }}</strong></div>
+	</div>
+  </div>
+  <div class="row align-items-stretch mt-3">
+    <div class="col-6 d-flex flex-column">
+	  <strong>{{ text_recipient }}</strong>
+	  <div class="border flex-fill p-2">{{ recepient }}</div>
+	</div>
+	<div class="col-6 d-flex flex-column">
+	  <strong>{{ text_payment_method }}</strong>
+	  <div class="border flex-fill p-2">{{ payment_method }}</div>
+	</div>
+  </div>
+  <table class="table table-sm table-borderless mt-3 mb-0">
+	<thead>
+      <tr class="border-bottom">
+        <th><strong>{{ column_sku }}</strong></th>
+        <th><strong>{{ column_name }}</strong></th>
+        <th class="text-center"><strong>{{ column_quantity }}</strong></th>
+        <th class="text-end"><strong>{{ column_price }}</strong></th>
+        <th class="text-end"><strong>{{ column_total }}</strong></th>
+        <th class="text-end"><strong>{{ column_tax }}</strong></th>
+      </tr>
+    </thead>
+	<tbody>
+	{% for product in order_product %}
+	  <tr>
+		<td>{{ product.sku }}</td>
+		<td>{{ product.name }}</td>
+		<td class="text-center">{{ product.quantity }}</td>
+		<td class="text-end">{{ product.price }}</td>
+		<td class="text-end">{{ product.total }}</td>
+		<td class="text-end">{{ tax }}%</td>
+	  </tr>
+	{% endfor %}
+	</tbody>
+  </table>
+  <div class="flex-fill d-flex flex-column justify-content-end">
+    <div class="row border-top border-bottom ms-0 me-0">
+	  <div class="col-7 pt-2 border-end">
+	    
+	  </div>
+	  <div class="col-5 pt-2">
+		{% for order_total in order_totals %}
+		{% if order_total.code != 'total' %}
+		<div class="d-flex pb-2">
+		  <div>{{ order_total.title }}</div>
+		  <div class="text-end flex-fill">{{ order_total.text }}</div>
+		</div>
+		{% endif %}
+		{% endfor %}
+		{% for order_total in order_totals %}
+		{% if order_total.code == 'total' %}
+		<div class="d-flex border-top pt-2">
+		  <div class="h3">{{ order_total.title }}</div>
+		  <div class="text-end flex-fill h3">{{ order_total.text }}</div>
+		</div>
+		{% endif %}
+		{% endfor %}
+	  </div>
+	</div>
+  </div>
+</div>
+</body>
+</html>
+<script>
+window.print();
+</script>
