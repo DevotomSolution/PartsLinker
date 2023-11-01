@@ -38,6 +38,13 @@ class Onlineshop extends \Opencart\System\Engine\Model {
 				'country' => '',
 				'type' => 'onlineshop',
 			),
+            'shopify' => array(
+                'code' => 'shopify',
+                'title' => 'Shopify',
+                'image' => 'view/img/integration/shopify.png',
+                'country' => '',
+                'type' => 'onlineshop',
+            ),
 			'baselinker' => array(
 				'code' => 'baselinker',
 				'title' => 'baselinker.com',
