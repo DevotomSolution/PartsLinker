@@ -9,6 +9,12 @@ class Delivery extends \Opencart\System\Engine\Model {
 				'image' => 'view/img/integration/dpd.png',
 				'country' => 'RO',
 			),
+            'fancourier' => array(
+                'code' => 'fancourier',
+                'title' => 'Fan Courier',
+                'image' => 'view/img/integration/fan.png',
+                'country' => 'RO',
+            ),
 		);
 		
 		return $methods;

@@ -1,28 +1,28 @@
 <?php
 namespace Opencart\Catalog\Model\Integration\Delivery;
-class Fancourier extends \Opencart\System\Engine\Model {
-    private $api_url = 'https://api.dpd.ro/v1/';
+class fancourier extends \Opencart\System\Engine\Model {
+    private $api_url = 'https://api.fancourier.ro/login';
 
     public function getStorage($user_id) {
         $this->load->model('integration/delivery/delivery');
 
-        return $this->model_integration_delivery_delivery->getStorage($user_id, 'dpdro');
+        return $this->model_integration_delivery_delivery->getStorage($user_id, 'fancourier');
     }
 
     public function editStorage($user_id, $storage) {
         $this->load->model('integration/delivery/delivery');
 
-        $this->model_integration_delivery_delivery->editStorage($user_id, 'dpdro', $storage);
+        $this->model_integration_delivery_delivery->editStorage($user_id, 'fancourier', $storage);
     }
 
     public function connect($user_id, $rewrite = false) {
-        if (isset($this->session->data['dpdro']['connected']) and !$rewrite) {
-            return $this->session->data['dpdro']['connected'];
+        if (isset($this->session->data['fancourier']['connected']) and !$rewrite) {
+            return $this->session->data['fancourier']['connected'];
         }
 
-        $this->session->data['dpdro'] = array();
+        $this->session->data['fancourier'] = array();
 
-        $this->session->data['dpdro']['connected'] = 0;
+        $this->session->data['fancourier']['connected'] = 0;
 
         $this->load->model('integration/delivery/delivery');
 
@@ -32,9 +32,9 @@ class Fancourier extends \Opencart\System\Engine\Model {
             return 0;
         }
 
-        $this->session->data['dpdro'] = $storage;
+        $this->session->data['fancourier'] = $storage;
 
-        $this->session->data['dpdro']['connected'] = 0;
+        $this->session->data['fancourier']['connected'] = 0;
 
         $response = $this->getServices();
 
@@ -42,18 +42,18 @@ class Fancourier extends \Opencart\System\Engine\Model {
             return 0;
         }
 
-        $this->session->data['dpdro']['connected'] = 1;
+        $this->session->data['fancourier']['connected'] = 1;
 
         return 1;
     }
 
     public function createShipment($post) {
-        if (!isset($this->session->data['dpdro']['username']) or !isset($this->session->data['dpdro']['password'])) {
+        if (!isset($this->session->data['fancourier']['username']) or !isset($this->session->data['fancourier']['password'])) {
             return false;
         }
 
-        $post['userName'] = $this->session->data['dpdro']['username'];
-        $post['password'] = $this->session->data['dpdro']['password'];
+        $post['userName'] = $this->session->data['fancourier']['username'];
+        $post['password'] = $this->session->data['fancourier']['password'];
 
         $result = $this->dpdRequest('shipment', $post);
 
@@ -63,13 +63,13 @@ class Fancourier extends \Opencart\System\Engine\Model {
     }
 
     public function getCountries($name = '') {
-        if (!isset($this->session->data['dpdro']['username']) or !isset($this->session->data['dpdro']['password'])) {
+        if (!isset($this->session->data['fancourier']['username']) or !isset($this->session->data['fancourier']['password'])) {
             return false;
         }
 
         $post = array(
-            'userName' => $this->session->data['dpdro']['username'],
-            'password' => $this->session->data['dpdro']['password'],
+            'userName' => $this->session->data['fancourier']['username'],
+            'password' => $this->session->data['fancourier']['password'],
             'name' => $name,
         );
 
@@ -85,13 +85,13 @@ class Fancourier extends \Opencart\System\Engine\Model {
     }
 
     public function getStates($country_id, $name = '') {
-        if (!isset($this->session->data['dpdro']['username']) or !isset($this->session->data['dpdro']['password'])) {
+        if (!isset($this->session->data['fancourier']['username']) or !isset($this->session->data['fancourier']['password'])) {
             return false;
         }
 
         $post = array(
-            'userName'	=> $this->session->data['dpdro']['username'],
-            'password'	=> $this->session->data['dpdro']['password'],
+            'userName'	=> $this->session->data['fancourier']['username'],
+            'password'	=> $this->session->data['fancourier']['password'],
             'countryId'	=> (int) $country_id,
             'name'		=> $name,
         );
@@ -108,13 +108,13 @@ class Fancourier extends \Opencart\System\Engine\Model {
     }
 
     public function getSites($country_id, $name = '') {
-        if (!isset($this->session->data['dpdro']['username']) or !isset($this->session->data['dpdro']['password'])) {
+        if (!isset($this->session->data['fancourier']['username']) or !isset($this->session->data['fancourier']['password'])) {
             return false;
         }
 
         $post = array(
-            'userName'	=> $this->session->data['dpdro']['username'],
-            'password'	=> $this->session->data['dpdro']['password'],
+            'userName'	=> $this->session->data['fancourier']['username'],
+            'password'	=> $this->session->data['fancourier']['password'],
             'countryId'	=> (int) $country_id,
             'name'		=> $name,
         );
@@ -131,13 +131,13 @@ class Fancourier extends \Opencart\System\Engine\Model {
     }
 
     public function getStreets($site_id, $name = '') {
-        if (!isset($this->session->data['dpdro']['username']) or !isset($this->session->data['dpdro']['password'])) {
+        if (!isset($this->session->data['fancourier']['username']) or !isset($this->session->data['fancourier']['password'])) {
             return false;
         }
 
         $post = array(
-            'userName'	=> $this->session->data['dpdro']['username'],
-            'password'	=> $this->session->data['dpdro']['password'],
+            'userName'	=> $this->session->data['fancourier']['username'],
+            'password'	=> $this->session->data['fancourier']['password'],
             'siteId'	=> (int) $site_id,
             'name'		=> $name,
         );
@@ -154,19 +154,19 @@ class Fancourier extends \Opencart\System\Engine\Model {
     }
 
     public function getServices() {
-        if (!isset($this->session->data['dpdro']['username']) or !isset($this->session->data['dpdro']['password'])) {
+        if (!isset($this->session->data['fancourier']['username']) or !isset($this->session->data['fancourier']['password'])) {
             return false;
         }
 
-        $username = $this->session->data['dpdro']['username'];
+        $username = $this->session->data['fancourier']['username'];
 
-        if (isset($this->session->data['dpdro'][$username]['services'])) {
-            return $this->session->data['dpdro'][$username]['services'];
+        if (isset($this->session->data['fancourier'][$username]['services'])) {
+            return $this->session->data['fancourier'][$username]['services'];
         }
 
         $post = array(
-            'userName'	=> $this->session->data['dpdro']['username'],
-            'password'	=> $this->session->data['dpdro']['password'],
+            'userName'	=> $this->session->data['fancourier']['username'],
+            'password'	=> $this->session->data['fancourier']['password'],
         );
 
         $result = $this->dpdRequest('services', $post);
@@ -174,7 +174,7 @@ class Fancourier extends \Opencart\System\Engine\Model {
         $result = json_decode($result, true);
 
         if (isset($result['services'])) {
-            $this->session->data['dpdro'][$username]['services'] = $result['services'];
+            $this->session->data['fancourier'][$username]['services'] = $result['services'];
 
             return $result['services'];
         } else {
@@ -183,19 +183,19 @@ class Fancourier extends \Opencart\System\Engine\Model {
     }
 
     public function getContractClients() {
-        if (!isset($this->session->data['dpdro']['username']) or !isset($this->session->data['dpdro']['password'])) {
+        if (!isset($this->session->data['fancourier']['username']) or !isset($this->session->data['fancourier']['password'])) {
             return false;
         }
 
-        $username = $this->session->data['dpdro']['username'];
+        $username = $this->session->data['fancourier']['username'];
 
-        if (isset($this->session->data['dpdro'][$username]['clients'])) {
-            return $this->session->data['dpdro'][$username]['clients'];
+        if (isset($this->session->data['fancourier'][$username]['clients'])) {
+            return $this->session->data['fancourier'][$username]['clients'];
         }
 
         $post = array(
             'userName'	=> $username,
-            'password'	=> $this->session->data['dpdro']['password'],
+            'password'	=> $this->session->data['fancourier']['password'],
         );
 
         $result = $this->dpdRequest('client/contract', $post);
@@ -203,7 +203,7 @@ class Fancourier extends \Opencart\System\Engine\Model {
         $result = json_decode($result, true);
 
         if (isset($result['clients'])) {
-            $this->session->data['dpdro'][$username]['clients'] = $result['clients'];
+            $this->session->data['fancourier'][$username]['clients'] = $result['clients'];
 
             return $result['clients'];
         } else {
@@ -212,12 +212,12 @@ class Fancourier extends \Opencart\System\Engine\Model {
     }
 
     public function validateShipment($post) {
-        if (!isset($this->session->data['dpdro']['username']) or !isset($this->session->data['dpdro']['password'])) {
+        if (!isset($this->session->data['fancourier']['username']) or !isset($this->session->data['fancourier']['password'])) {
             return false;
         }
 
-        $post['userName'] = $this->session->data['dpdro']['username'];
-        $post['password'] = $this->session->data['dpdro']['password'];
+        $post['userName'] = $this->session->data['fancourier']['username'];
+        $post['password'] = $this->session->data['fancourier']['password'];
 
         $result = $this->dpdRequest('validation/shipment', $post);
 
@@ -227,12 +227,12 @@ class Fancourier extends \Opencart\System\Engine\Model {
     }
 
     public function getLabel($shipment_id) {
-        if (!isset($this->session->data['dpdro']['username']) or !isset($this->session->data['dpdro']['password'])) {
+        if (!isset($this->session->data['fancourier']['username']) or !isset($this->session->data['fancourier']['password'])) {
             return false;
         }
 
-        $post['userName'] = $this->session->data['dpdro']['username'];
-        $post['password'] = $this->session->data['dpdro']['password'];
+        $post['userName'] = $this->session->data['fancourier']['username'];
+        $post['password'] = $this->session->data['fancourier']['password'];
         $post['paperSize'] = 'A4';
         $post['parcels'] = array(array('parcel' => array('id' => $shipment_id)));
 
