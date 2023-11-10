@@ -27,7 +27,7 @@ class Onlineshop extends \Opencart\System\Engine\Model {
             'subito' => array(
                 'code' => 'subito',
                 'title' => 'subito.it',
-                'image' => 'https://assets.subito.it/static/logos/corporate.svg',
+                'image' => 'view/img/integration/subito.png',
                 'contry' => 'IT',
                 'type' => 'marketplace',
             ),
@@ -42,6 +42,13 @@ class Onlineshop extends \Opencart\System\Engine\Model {
                 'code' => 'shopify',
                 'title' => 'Shopify',
                 'image' => 'view/img/integration/shopify.png',
+                'country' => '',
+                'type' => 'onlineshop',
+            ),
+            'wordpress' => array(
+                'code' => 'wordpress',
+                'title' => 'WordPress',
+                'image' => 'view/img/integration/wordpress.png',
                 'country' => '',
                 'type' => 'onlineshop',
             ),

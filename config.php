@@ -3,10 +3,10 @@
 define('APPLICATION', 'Catalog');
 
 // HTTP
-define('HTTP_SERVER', 'https://partsmanager.it/');
+define('HTTP_SERVER', 'https://partslinkerv1.test/');
 
 // DIR
-define('DIR_OPENCART', '/var/www/vhosts/partsmanager.it/httpdocs/');
+define('DIR_OPENCART', 'C:/laragon/www/partslinkerv1/');
 define('DIR_APPLICATION', DIR_OPENCART);
 define('DIR_SYSTEM', DIR_OPENCART . 'system/');
 define('DIR_STORAGE', DIR_OPENCART . 'storage/');
@@ -47,8 +47,8 @@ define('MAX_IMAGE_HEIGHT', 1200);
 // DB
 define('DB_DRIVER', 'mysqli');
 define('DB_HOSTNAME', 'localhost');
-define('DB_USERNAME', 'partsmanager');
-define('DB_PASSWORD', '!$C_rmZ@WALC');
-define('DB_DATABASE', 'partsmanager');
+define('DB_USERNAME', 'root');
+define('DB_PASSWORD', '');
+define('DB_DATABASE', 'partslinkerv1');
 define('DB_PORT', '3306');
 define('DB_PREFIX', 'pl_');

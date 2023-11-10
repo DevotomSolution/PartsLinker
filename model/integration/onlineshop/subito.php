@@ -1,23 +1,23 @@
 <?php
 namespace Opencart\Catalog\Model\Integration\Onlineshop;
 class subito extends \Opencart\System\Engine\Model {
-    private $api_url = 'https://www.autovit.ro/api/open/';
+    private $api_url = 'https://partslinkerv2.test/api/pptest/';
 
     public function getStorage($user_id) {
         $this->load->model('integration/onlineshop/onlineshop');
 
-        return $this->model_integration_onlineshop_onlineshop->getStorage($user_id, 'autovit');
+        return $this->model_integration_onlineshop_onlineshop->getStorage($user_id, 'subito');
     }
 
     public function editStorage($user_id, $storage) {
         $this->load->model('integration/onlineshop/onlineshop');
 
-        $this->model_integration_onlineshop_onlineshop->editStorage($user_id, 'autovit', $storage);
+        $this->model_integration_onlineshop_onlineshop->editStorage($user_id, 'subito', $storage);
     }
 
     public function connect($user_id, $rewrite = false) {
-        if (isset($this->session->data['autovit']['connected']) and isset($this->session->data['autovit']['access_token']) and $this->session->data['autovit']['expires_in'] > time() and !$rewrite) {
-            return $this->session->data['autovit']['connected'];
+        if (isset($this->session->data['subito']['connected']) and isset($this->session->data['subito']['access_token']) and $this->session->data['subito']['expires_in'] > time() and !$rewrite) {
+            return $this->session->data['subito']['connected'];
         }
 
         $storage = $this->getStorage($user_id);
@@ -61,15 +61,15 @@ class subito extends \Opencart\System\Engine\Model {
             }
         }
 
-        $this->session->data['autovit'] = $storage;
+        $this->session->data['subito'] = $storage;
 
-        $this->session->data['autovit']['connected'] = 0;
+        $this->session->data['subito']['connected'] = 0;
 
         if (!$this->categories()) {
             return 0;
         }
 
-        $this->session->data['autovit']['connected'] = 1;
+        $this->session->data['subito']['connected'] = 1;
 
         return 1;
     }
@@ -84,7 +84,7 @@ class subito extends \Opencart\System\Engine\Model {
             return false;
         }
 
-        $this->load->language('integration/autovit');
+        $this->load->language('integration/subito');
         $this->load->language('integration/onlineshop');
 
         $this->load->model('catalog/product');
@@ -93,12 +93,12 @@ class subito extends \Opencart\System\Engine\Model {
             $product = $this->model_catalog_product->getProduct($user_id, $sku);
         }
 
-        if ($product and !isset($product['onlineshops']['autovit'])) {
+        if ($product and !isset($product['onlineshops']['subito'])) {
             return $response;
         }
 
-        if (isset($product['onlineshops']['autovit']['data']['id']) and (!$product['onlineshops']['autovit']['status'] or !$product['quantity'] or !$product['status'])) {
-            if ($product['onlineshops']['autovit']['data']['activate'] == 0) {
+        if (isset($product['onlineshops']['subito']['data']['id']) and (!$product['onlineshops']['subito']['status'] or !$product['quantity'] or !$product['status'])) {
+            if ($product['onlineshops']['subito']['data']['activate'] == 0) {
                 return $response;
             }
 
@@ -109,16 +109,16 @@ class subito extends \Opencart\System\Engine\Model {
                 )
             );
 
-            $deactivate_result = $this->accountAdvertDeactivate($product['onlineshops']['autovit']['data']['id'], $post_deativate);
+            $deactivate_result = $this->accountAdvertDeactivate($product['onlineshops']['subito']['data']['id'], $post_deativate);
 
             if (isset($deactivate_result['error'])) {
                 $response['message'] = $deactivate_result['error']['message'];
                 return $response;
             }
 
-            $product['onlineshops']['autovit']['data']['activate'] = 0;
+            $product['onlineshops']['subito']['data']['activate'] = 0;
 
-            $this->model_catalog_product->setProduct2OnlineshopData($user_id, $product['sku'], 'autovit', $product['onlineshops']['autovit']['data']);
+            $this->model_catalog_product->setProduct2OnlineshopData($user_id, $product['sku'], 'subito', $product['onlineshops']['subito']['data']);
 
             $response['success'] = 1;
             $response['message'] = $this->language->get('text_disabled');
@@ -127,12 +127,12 @@ class subito extends \Opencart\System\Engine\Model {
         }
 
         if (!$product) {
-            $onlineshop_data = $this->model_catalog_product->getProduct2OnlineshopData($user_id, $sku, 'autovit');
+            $onlineshop_data = $this->model_catalog_product->getProduct2OnlineshopData($user_id, $sku, 'subito');
 
             if (isset($onlineshop_data['id'])) {
                 $delete_result = $this->deleteAdvert($onlineshop_data['id']);
 
-                $this->model_catalog_product->deleteProduct2Onlineshop($user_id, $sku, 'autovit');
+                $this->model_catalog_product->deleteProduct2Onlineshop($user_id, $sku, 'subito');
 
                 $response['success'] = 1;
                 $response['message'] = $this->language->get('text_deleted');
@@ -141,7 +141,7 @@ class subito extends \Opencart\System\Engine\Model {
             return $response;
         }
 
-        if (!$product['onlineshops']['autovit']['status']) {
+        if (!$product['onlineshops']['subito']['status']) {
             return false;
         }
 
@@ -191,8 +191,8 @@ class subito extends \Opencart\System\Engine\Model {
 
         $description = html_entity_decode($product['description']);
 
-        if (isset($this->session->data['autovit']['general_description'])) {
-            $description .= html_entity_decode($this->session->data['autovit']['general_description']);
+        if (isset($this->session->data['subito']['general_description'])) {
+            $description .= html_entity_decode($this->session->data['subito']['general_description']);
         }
 
         $post = array(
@@ -204,19 +204,19 @@ class subito extends \Opencart\System\Engine\Model {
         //$post['params']['title_parts'] = $product['name_product'];
         $post['params']['title_parts'] = $title;
 
-        $autovit_type_code = '';
+        $subito_type_code = '';
 
-        $product_category_to_autovit_type = $this->getProductCategoryToAutovitType();
+        $product_category_to_subito_type = $this->getProductCategoryTosubitoType();
 
         foreach ($product_categories as $product_category) {
-            if (isset($product_category_to_autovit_type[$product_category['category_id']])) {
-                $autovit_type_code = $product_category_to_autovit_type[$product_category['category_id']];
+            if (isset($product_category_to_subito_type[$product_category['category_id']])) {
+                $subito_type_code = $product_category_to_subito_type[$product_category['category_id']];
                 break;
             }
         }
 
-        if ($autovit_type_code) {
-            $post['params']['type'] = $autovit_type_code;
+        if ($subito_type_code) {
+            $post['params']['type'] = $subito_type_code;
         } else {
             $post['params']['type'] = 'altele';
         }
@@ -336,7 +336,7 @@ class subito extends \Opencart\System\Engine\Model {
             $post['new_used'] = 'new';
         }
 
-        if (!isset($product['onlineshops']['autovit']['data']['image_collection_id'])) {
+        if (!isset($product['onlineshops']['subito']['data']['image_collection_id'])) {
             $post_image_collection = array();
 
             if ($product['image']) {
@@ -359,29 +359,29 @@ class subito extends \Opencart\System\Engine\Model {
                 }
             }
         } else {
-            $post['image_collection_id'] = $product['onlineshops']['autovit']['data']['image_collection_id'];
+            $post['image_collection_id'] = $product['onlineshops']['subito']['data']['image_collection_id'];
         }
 
-        if (!isset($product['onlineshops']['autovit']['data']['id'])) {
+        if (!isset($product['onlineshops']['subito']['data']['id'])) {
             $advert_result = $this->createAccountAdvert($post);
 
             if (isset($advert_result['id'])) {
-                $product['onlineshops']['autovit']['data']['id'] = $advert_result['id'];
-                $product['onlineshops']['autovit']['data']['activate'] = 0;
-                $product['onlineshops']['autovit']['data']['image_collection_id'] = $post['image_collection_id'];
+                $product['onlineshops']['subito']['data']['id'] = $advert_result['id'];
+                $product['onlineshops']['subito']['data']['activate'] = 0;
+                $product['onlineshops']['subito']['data']['image_collection_id'] = $post['image_collection_id'];
 
-                $this->model_catalog_product->setProduct2OnlineshopData($user_id, $product['sku'], 'autovit', $product['onlineshops']['autovit']['data']);
+                $this->model_catalog_product->setProduct2OnlineshopData($user_id, $product['sku'], 'subito', $product['onlineshops']['subito']['data']);
 
-                $this->model_catalog_product->setOnlineshopProductId($user_id, $product['sku'], 'autovit', $product['onlineshops']['autovit']['data']['id']);
+                $this->model_catalog_product->setOnlineshopProductId($user_id, $product['sku'], 'subito', $product['onlineshops']['subito']['data']['id']);
 
-                $activate_result = $this->accountAdvertActivate($product['onlineshops']['autovit']['data']['id']);
+                $activate_result = $this->accountAdvertActivate($product['onlineshops']['subito']['data']['id']);
 
                 if (isset($activate_result['error'])) {
                     $response['message'] = $activate_result['error']['message'];
                     return $response;
                 } else {
-                    $product['onlineshops']['autovit']['data']['activate'] = 1;
-                    $this->model_catalog_product->setProduct2OnlineshopData($user_id, $product['sku'], 'autovit', $product['onlineshops']['autovit']['data']);
+                    $product['onlineshops']['subito']['data']['activate'] = 1;
+                    $this->model_catalog_product->setProduct2OnlineshopData($user_id, $product['sku'], 'subito', $product['onlineshops']['subito']['data']);
                 }
 
                 $response['success'] = 1;
@@ -390,18 +390,18 @@ class subito extends \Opencart\System\Engine\Model {
                 $response['message'] = $advert_result['error']['message'];
             }
         } else {
-            $advert_result = $this->updateAccountAdvert($product['onlineshops']['autovit']['data']['id'], $post);
+            $advert_result = $this->updateAccountAdvert($product['onlineshops']['subito']['data']['id'], $post);
 
             if (isset($advert_result['id'])) {
-                if ($product['onlineshops']['autovit']['data']['activate'] == 0) {
-                    $activate_result = $this->accountAdvertActivate($product['onlineshops']['autovit']['data']['id']);
+                if ($product['onlineshops']['subito']['data']['activate'] == 0) {
+                    $activate_result = $this->accountAdvertActivate($product['onlineshops']['subito']['data']['id']);
 
                     if (isset($activate_result['error'])) {
                         $response['message'] = $activate_result['error']['message'];
                         return $response;
                     } else {
-                        $product['onlineshops']['autovit']['data']['activate'] = 1;
-                        $this->model_catalog_product->setProduct2OnlineshopData($user_id, $product['sku'], 'autovit', $product['onlineshops']['autovit']['data']);
+                        $product['onlineshops']['subito']['data']['activate'] = 1;
+                        $this->model_catalog_product->setProduct2OnlineshopData($user_id, $product['sku'], 'subito', $product['onlineshops']['subito']['data']);
                     }
                 }
 
@@ -423,71 +423,71 @@ class subito extends \Opencart\System\Engine\Model {
     }
 
     private function createAccountAdvert($post) {
-        if (!isset($this->session->data['autovit']['client_id']) or !isset($this->session->data['autovit']['client_secret']) or !isset($this->session->data['autovit']['access_token']) or !isset($this->session->data['autovit']['email'])) {
+        if (!isset($this->session->data['subito']['client_id']) or !isset($this->session->data['subito']['client_secret']) or !isset($this->session->data['subito']['access_token']) or !isset($this->session->data['subito']['email'])) {
             return array();
         }
 
-        $response = $this->request('account/adverts', $this->session->data['autovit']['client_id'], $this->session->data['autovit']['client_secret'], $this->session->data['autovit']['access_token'], $this->session->data['autovit']['email'], $post);
+        $response = $this->request('account/adverts', $this->session->data['subito']['client_id'], $this->session->data['subito']['client_secret'], $this->session->data['subito']['access_token'], $this->session->data['subito']['email'], $post);
 
         return $response;
     }
 
     private function updateAccountAdvert($id, $put) {
-        if (!isset($this->session->data['autovit']['client_id']) or !isset($this->session->data['autovit']['client_secret']) or !isset($this->session->data['autovit']['access_token']) or !isset($this->session->data['autovit']['email'])) {
+        if (!isset($this->session->data['subito']['client_id']) or !isset($this->session->data['subito']['client_secret']) or !isset($this->session->data['subito']['access_token']) or !isset($this->session->data['subito']['email'])) {
             return array();
         }
 
-        $response = $this->request('account/adverts/' . $id, $this->session->data['autovit']['client_id'], $this->session->data['autovit']['client_secret'], $this->session->data['autovit']['access_token'], $this->session->data['autovit']['email'], $put, 'put');
+        $response = $this->request('account/adverts/' . $id, $this->session->data['subito']['client_id'], $this->session->data['subito']['client_secret'], $this->session->data['subito']['access_token'], $this->session->data['subito']['email'], $put, 'put');
 
         return $response;
     }
 
     private function accountAdvertActivate($id) {
-        if (!isset($this->session->data['autovit']['client_id']) or !isset($this->session->data['autovit']['client_secret']) or !isset($this->session->data['autovit']['access_token']) or !isset($this->session->data['autovit']['email'])) {
+        if (!isset($this->session->data['subito']['client_id']) or !isset($this->session->data['subito']['client_secret']) or !isset($this->session->data['subito']['access_token']) or !isset($this->session->data['subito']['email'])) {
             return array();
         }
 
-        $response = $this->request('account/adverts/' . $id . '/activate', $this->session->data['autovit']['client_id'], $this->session->data['autovit']['client_secret'], $this->session->data['autovit']['access_token'], $this->session->data['autovit']['email'], array());
+        $response = $this->request('account/adverts/' . $id . '/activate', $this->session->data['subito']['client_id'], $this->session->data['subito']['client_secret'], $this->session->data['subito']['access_token'], $this->session->data['subito']['email'], array());
 
         return $response;
     }
 
     private function accountAdvertDeactivate($id, $post) {
-        if (!isset($this->session->data['autovit']['client_id']) or !isset($this->session->data['autovit']['client_secret']) or !isset($this->session->data['autovit']['access_token']) or !isset($this->session->data['autovit']['email'])) {
+        if (!isset($this->session->data['subito']['client_id']) or !isset($this->session->data['subito']['client_secret']) or !isset($this->session->data['subito']['access_token']) or !isset($this->session->data['subito']['email'])) {
             return array();
         }
 
-        $response = $this->request('account/adverts/' . $id . '/deactivate', $this->session->data['autovit']['client_id'], $this->session->data['autovit']['client_secret'], $this->session->data['autovit']['access_token'], $this->session->data['autovit']['email'], $post);
+        $response = $this->request('account/adverts/' . $id . '/deactivate', $this->session->data['subito']['client_id'], $this->session->data['subito']['client_secret'], $this->session->data['subito']['access_token'], $this->session->data['subito']['email'], $post);
 
         return $response;
     }
 
     private function deleteAdvert($id, $post = array()) {
-        if (!isset($this->session->data['autovit']['client_id']) or !isset($this->session->data['autovit']['client_secret']) or !isset($this->session->data['autovit']['access_token']) or !isset($this->session->data['autovit']['email'])) {
+        if (!isset($this->session->data['subito']['client_id']) or !isset($this->session->data['subito']['client_secret']) or !isset($this->session->data['subito']['access_token']) or !isset($this->session->data['subito']['email'])) {
             return array();
         }
 
-        $response = $this->request('/adverts/' . $id, $this->session->data['autovit']['client_id'], $this->session->data['autovit']['client_secret'], $this->session->data['autovit']['access_token'], $this->session->data['autovit']['email'], $post, 'delete');
+        $response = $this->request('/adverts/' . $id, $this->session->data['subito']['client_id'], $this->session->data['subito']['client_secret'], $this->session->data['subito']['access_token'], $this->session->data['subito']['email'], $post, 'delete');
 
         return $response;
     }
 
     private function imageCollections($post) {
-        if (!isset($this->session->data['autovit']['client_id']) or !isset($this->session->data['autovit']['client_secret']) or !isset($this->session->data['autovit']['access_token']) or !isset($this->session->data['autovit']['email'])) {
+        if (!isset($this->session->data['subito']['client_id']) or !isset($this->session->data['subito']['client_secret']) or !isset($this->session->data['subito']['access_token']) or !isset($this->session->data['subito']['email'])) {
             return array();
         }
 
-        $response = $this->request('imageCollections', $this->session->data['autovit']['client_id'], $this->session->data['autovit']['client_secret'], $this->session->data['autovit']['access_token'], $this->session->data['autovit']['email'], $post);
+        $response = $this->request('imageCollections', $this->session->data['subito']['client_id'], $this->session->data['subito']['client_secret'], $this->session->data['subito']['access_token'], $this->session->data['subito']['email'], $post);
 
         return $response;
     }
 
     private function categories() {
-        if (!isset($this->session->data['autovit']['client_id']) or !isset($this->session->data['autovit']['client_secret']) or !isset($this->session->data['autovit']['access_token']) or !isset($this->session->data['autovit']['email'])) {
+        if (!isset($this->session->data['subito']['client_id']) or !isset($this->session->data['subito']['client_secret']) or !isset($this->session->data['subito']['access_token']) or !isset($this->session->data['subito']['email'])) {
             return array();
         }
 
-        $response = $this->request('categories', $this->session->data['autovit']['client_id'], $this->session->data['autovit']['client_secret'], $this->session->data['autovit']['access_token'], $this->session->data['autovit']['email']);
+        $response = $this->request('categories', $this->session->data['subito']['client_id'], $this->session->data['subito']['client_secret'], $this->session->data['subito']['access_token'], $this->session->data['subito']['email']);
 
         if (isset($response['results'])) {
             return array_column($response['results'], null, 'id');
@@ -497,11 +497,11 @@ class subito extends \Opencart\System\Engine\Model {
     }
 
     private function categoryMakes($category_id) {
-        if (!isset($this->session->data['autovit']['client_id']) or !isset($this->session->data['autovit']['client_secret']) or !isset($this->session->data['autovit']['access_token']) or !isset($this->session->data['autovit']['email'])) {
+        if (!isset($this->session->data['subito']['client_id']) or !isset($this->session->data['subito']['client_secret']) or !isset($this->session->data['subito']['access_token']) or !isset($this->session->data['subito']['email'])) {
             return array();
         }
 
-        $response = $this->request('categories/' . (int) $category_id . '/makes', $this->session->data['autovit']['client_id'], $this->session->data['autovit']['client_secret'], $this->session->data['autovit']['access_token'], $this->session->data['autovit']['email']);
+        $response = $this->request('categories/' . (int) $category_id . '/makes', $this->session->data['subito']['client_id'], $this->session->data['subito']['client_secret'], $this->session->data['subito']['access_token'], $this->session->data['subito']['email']);
 
         if (isset($response['options'])) {
             return $response['options'];
@@ -511,11 +511,11 @@ class subito extends \Opencart\System\Engine\Model {
     }
 
     private function category($category_id) {
-        if (!isset($this->session->data['autovit']['client_id']) or !isset($this->session->data['autovit']['client_secret']) or !isset($this->session->data['autovit']['access_token']) or !isset($this->session->data['autovit']['email'])) {
+        if (!isset($this->session->data['subito']['client_id']) or !isset($this->session->data['subito']['client_secret']) or !isset($this->session->data['subito']['access_token']) or !isset($this->session->data['subito']['email'])) {
             return array();
         }
 
-        $response = $this->request('categories/' . (int) $category_id, $this->session->data['autovit']['client_id'], $this->session->data['autovit']['client_secret'], $this->session->data['autovit']['access_token'], $this->session->data['autovit']['email']);
+        $response = $this->request('categories/' . (int) $category_id, $this->session->data['subito']['client_id'], $this->session->data['subito']['client_secret'], $this->session->data['subito']['access_token'], $this->session->data['subito']['email']);
 
         echo '<pre>'; print_r($response); echo '</pre><br><br>'; die();
 
@@ -594,9 +594,9 @@ class subito extends \Opencart\System\Engine\Model {
         return json_decode($res, true);
     }
 
-    private function getProductCategoryToAutovitType() {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "category_to_autovit_type");
+    private function getProductCategoryTosubitoType() {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "category_to_subito_type");
 
-        return array_column($query->rows, 'autovit_type_code', 'category_id');
+        return array_column($query->rows, 'subito_type_code', 'category_id');
     }
 }

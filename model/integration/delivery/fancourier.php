@@ -1,7 +1,7 @@
 <?php
 namespace Opencart\Catalog\Model\Integration\Delivery;
 class fancourier extends \Opencart\System\Engine\Model {
-    private $api_url = 'https://api.fancourier.ro/login';
+    private $api_url = 'https://api.dpd.ro/v1/';
 
     public function getStorage($user_id) {
         $this->load->model('integration/delivery/delivery');

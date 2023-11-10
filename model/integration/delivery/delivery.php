@@ -7,13 +7,25 @@ class Delivery extends \Opencart\System\Engine\Model {
 				'code' => 'dpdro',
 				'title' => 'DPD',
 				'image' => 'view/img/integration/dpd.png',
-				'country' => 'RO',
+				'country' => 'INT',
 			),
             'fancourier' => array(
                 'code' => 'fancourier',
                 'title' => 'Fan Courier',
                 'image' => 'view/img/integration/fan.png',
                 'country' => 'RO',
+            ),
+            'sameday' => array(
+                'code' => 'sameday',
+                'title' => 'SameDay',
+                'image' => 'view/img/integration/sameday.png',
+                'country' => 'RO',
+            ),
+            'gls' => array(
+                'code' => 'gls',
+                'title' => 'GLS',
+                'image' => 'view/img/integration/gls.png',
+                'country' => 'INT',
             ),
 		);
 		
